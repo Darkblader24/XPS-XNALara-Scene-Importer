@@ -1,4 +1,5 @@
 import bpy
+from mathutils import Color
 
 from . import utils
 
@@ -59,12 +60,17 @@ class SceneConstructor:
 
         # Setup lights as point lights
         else:
+            c = Color(color)
+            c.s += 0.1
+
             light.data.type = "POINT"
             light.location = -direction * 3
             # light.location[2] += 1
             light.data.energy = intensity * 1.5
-            light.data.color = color
+            light.data.color = c
             light.data.shadow_soft_size = 1
+            light.data.use_contact_shadow = True
+            light.data.contact_shadow_thickness = 0.005
 
             # Create empty at the center so the light can be easily rotated
             empty = utils.create_empty(link_collection=self.collection)
