@@ -60,10 +60,18 @@ class SceneConstructor:
         # Setup lights as point lights
         else:
             light.data.type = "POINT"
-            light.location = -direction * 2
-            light.location[2] += 2
-            light.data.energy = intensity / 2
+            light.location = -direction * 3
+            # light.location[2] += 1
+            light.data.energy = intensity * 1.5
             light.data.color = color
+            light.data.shadow_soft_size = 1
+
+            # Create empty at the center so the light can be easily rotated
+            empty = utils.create_empty(link_collection=self.collection)
+            empty.location[2] += 1
+            empty.name = f"{light.name} Controller"
+            light.parent = empty
+
 
     def remove(self):
         layer_collection = utils.find_layer_collection(self.collection.name)

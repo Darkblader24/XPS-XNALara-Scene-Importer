@@ -50,9 +50,11 @@ def delete_hierarchy(layer_collection: LayerCollection):
     bpy.data.collections.remove(layer_collection.collection, do_unlink=True)
 
 
-def create_empty():
+def create_empty(link_collection=None):
+    if not link_collection:
+        link_collection = bpy.context.scene.collection
     empty = bpy.data.objects.new(name="Empty", object_data=None)
-    bpy.context.scene.collection.objects.link(empty)
+    link_collection.objects.link(empty)
     return empty
 
 
