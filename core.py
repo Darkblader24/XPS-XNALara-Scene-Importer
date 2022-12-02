@@ -35,24 +35,35 @@ class SceneConstructor:
         # Rotate light direction from XPS to Blender
         direction = utils.rotate(direction, (90, 0, 0))
 
-        # Set light properties
-        light.data.color = color
-        light.data.energy = 0.03
-        light.data.energy = 10 / 3 * intensity / 100
-        # light.data.shadow_soft_size = shadow_depth
+        sun = False
 
-        # Apply direction to light by pointing the light at the direction location
-        # This is done by creating an empty at the direction location and targeting the light at the empty via the track to constraint
-        empty_target = utils.create_empty()
-        empty_target.location = direction
-        constraint = light.constraints.new(type='TRACK_TO')
-        constraint.target = empty_target
-        utils.set_active(light)
-        bpy.ops.constraint.apply(constraint=constraint.name)
-        bpy.data.objects.remove(empty_target, do_unlink=True)
+        if sun:
+            # Set light properties
+            light.data.color = color
+            light.data.energy = 0.03
+            light.data.energy = 10 / 3 * intensity / 100
+            # light.data.shadow_soft_size = shadow_depth
 
-        # Move light above the scene
-        light.location[2] = 5
+            # Apply direction to light by pointing the light at the direction location
+            # This is done by creating an empty at the direction location and targeting the light at the empty via the track to constraint
+            empty_target = utils.create_empty()
+            empty_target.location = direction
+            constraint = light.constraints.new(type='TRACK_TO')
+            constraint.target = empty_target
+            utils.set_active(light)
+            bpy.ops.constraint.apply(constraint=constraint.name)
+            bpy.data.objects.remove(empty_target, do_unlink=True)
+
+            # Move light above the scene
+            light.location[2] = 5
+
+        # Setup lights as point lights
+        else:
+            light.data.type = "POINT"
+            light.location = -direction * 2
+            light.location[2] += 2
+            light.data.energy = intensity / 2
+            light.data.color = color
 
     def remove(self):
         layer_collection = utils.find_layer_collection(self.collection.name)
