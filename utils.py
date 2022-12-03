@@ -58,28 +58,17 @@ def create_empty(link_collection=None):
     return empty
 
 
-def cartesian_to_spherical(x, y, z):
-    r = (x**2 + y**2 + z**2)**0.5
-    theta = math.acos(z / r)
-    phi = math.atan2(y, x)
-    return r, theta, phi
-
-
-def spherical_to_euler(theta, phi):
-    x = 0
-    y = theta
-    z = phi
-    return x, y, z
-
-
-def rotate_vector_euler(vector, euler_angles):
-    # Convert euler angles to quaternion
-    q = mathutils.Euler(euler_angles).to_quaternion()
-
-    # Rotate vector
-    vector = q @ vector
-
-    return vector
+def look_at(obj, location, keep_empty=False):
+    # Create an empty at the location and targeting the object at the empty via the track to constraint
+    empty_target = create_empty()
+    empty_target.location = location
+    constraint = obj.constraints.new(type='TRACK_TO')
+    constraint.target = empty_target
+    set_active(obj)
+    bpy.ops.constraint.apply(constraint=constraint.name)
+    if not keep_empty:
+        bpy.data.objects.remove(empty_target, do_unlink=True)
+        return empty_target
 
 
 def rotate(vector, rot):
@@ -105,3 +94,27 @@ def rotate(vector, rot):
     ]))
 
     return Rx @ Ry @ Rz @ vector
+
+
+# def cartesian_to_spherical(x, y, z):
+#     r = (x**2 + y**2 + z**2)**0.5
+#     theta = math.acos(z / r)
+#     phi = math.atan2(y, x)
+#     return r, theta, phi
+#
+#
+# def spherical_to_euler(theta, phi):
+#     x = 0
+#     y = theta
+#     z = phi
+#     return x, y, z
+#
+#
+# def rotate_vector_euler(vector, euler_angles):
+#     # Convert euler angles to quaternion
+#     q = mathutils.Euler(euler_angles).to_quaternion()
+#
+#     # Rotate vector
+#     vector = q @ vector
+#
+#     return vector

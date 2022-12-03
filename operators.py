@@ -42,7 +42,9 @@ class ImportXPSTestButton(Operator):
             return {'CANCELLED'}
 
         # Custom test scene
-        # io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\lara_scene.scene")
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\cam_test.scene")
+        self.report({'INFO'}, f"Small test successful!")
+        return {'FINISHED'}
 
         io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\lara_scene.scene")
         if round(io_handler.light_shadow_depth, 2) != 0.4:

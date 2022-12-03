@@ -135,6 +135,8 @@ class ImportXPS:
         camera_rotation_vertical = bin_ops.readSingle(self.io_stream)
         print(f"Info: Camera rotation: {camera_rotation_horizontal}, {camera_rotation_vertical}")
 
+        self.scene.create_camera(camera_fov, camera_target, camera_distance, camera_rotation_horizontal, camera_rotation_vertical)
+
     def _read_lights(self):
         self.io_stream.read(4)  # Skip one single
         for i in range(1, 4):
