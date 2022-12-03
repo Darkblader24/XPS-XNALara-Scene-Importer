@@ -119,6 +119,9 @@ class ImportXPS:
                     color = bin_ops.readSingle(self.io_stream, round_to=2)
                     print(f"Info: Item {i} glow color {j}: {color}")
 
+            # Add the character to the scene
+            self.scene.add_character(item_path, item_scale, item_visibility)
+
     def _read_camera(self):
         camera_fov = bin_ops.readSingle(self.io_stream)
         print(f"Info: Camera fov: {camera_fov}")

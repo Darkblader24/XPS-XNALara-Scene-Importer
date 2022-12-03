@@ -5,7 +5,11 @@ from bpy.props import IntProperty, StringProperty, BoolProperty, CollectionPrope
 
 
 def register():
-    pass
+    Scene.xps_importer_install_dir = StringProperty(
+        name="XNALara Install Directory",
+        description="XNALara installation folder containing the 'XNALara XPS.exe' file and the 'data' folder",
+        default="",
+    )
 
 
 

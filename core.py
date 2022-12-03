@@ -1,3 +1,5 @@
+import pathlib
+
 import bpy
 from mathutils import Color
 from math import radians
@@ -12,14 +14,9 @@ class SceneConstructor:
         self.name = name
 
         self.collection = self._create_scene_collection()
+        self.can_import_characters = utils.check_for_xps_importer()
 
     def _create_scene_collection(self):
-        # Delete any existing collection with this name
-        # collection = bpy.data.collections.get(self.name)
-        # if collection:
-        #       layer_collection = utils.find_layer_collection(collection)
-        #       utils.delete_hierarchy(layer_collection)
-
         collection = bpy.data.collections.new(self.name)
         bpy.context.scene.collection.children.link(collection)
         return collection
@@ -107,6 +104,63 @@ class SceneConstructor:
 
         # Set this camera to active
         bpy.context.scene.camera = camera
+
+    def add_character(self, file_directory, scale, visibility):
+        if not self.can_import_characters:
+            print("XPS Importer not installed, skipping character import.")
+            return
+
+        # Check if the path is valid
+        folder = pathlib.Path(file_directory)
+        if not folder.exists():
+            folder = bpy.context.scene.xps_importer_install_dir / folder
+        if not folder.exists():
+            print(f"Character folder '{file_directory}' does not exist, skipping character import.")
+            return
+
+        # Search in the folder for a .mesh file
+        mesh_file = None
+        for file in folder.iterdir():
+            if file.suffix in [".mesh", ".xps", ".ascii"]:
+                mesh_file = file
+                break
+        if not mesh_file:
+            print(f"Character folder '{file_directory}' does not contain a character file (.xps, .mesh, .ascii), skipping character import.")
+            return
+
+        filepath_full = folder / mesh_file
+        print(f"Importing character {str(filepath_full)}...")
+
+        # Save all current collections to check witch one was added
+        collections_pre = [c for c in bpy.data.collections]
+
+        # Import the character from the given path
+        bpy.ops.xps_tools.import_model(
+            "EXEC_DEFAULT",
+            filepath=str(filepath_full),
+        )
+
+        # Get the added collection
+        character_collection = None
+        for c in bpy.data.collections:
+            if c not in collections_pre:
+                character_collection = c
+                break
+        if not character_collection:
+            print(f"Imported character '{filepath_full}' collection not found, skipping character import.")
+            return
+
+        # Move the character collection into the scene collection
+        self.collection.children.link(character_collection)
+        bpy.context.scene.collection.children.unlink(character_collection)
+        
+        # Scale the character
+        for obj in character_collection.objects:
+            obj.scale = scale
+
+        # Set the visibility of the character
+        character_collection.hide_viewport = not visibility
+        character_collection.hide_render = not visibility
 
     def remove(self):
         layer_collection = utils.find_layer_collection(self.collection.name)

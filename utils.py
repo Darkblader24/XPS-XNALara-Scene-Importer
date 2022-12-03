@@ -2,6 +2,7 @@
 import bpy
 import math
 import mathutils
+import addon_utils
 import numpy as np
 
 from bpy.types import LayerCollection
@@ -94,6 +95,25 @@ def rotate(vector, rot):
     ]))
 
     return Rx @ Ry @ Rz @ vector
+
+
+def check_for_xps_importer():
+    # then enable correct version
+    for mod in addon_utils.modules():
+        if mod.bl_info['name'] == "XNALara/XPS Import/Export":
+            # if mod.bl_info['version'] < (2, 0, 2):
+            #     continue
+            if not addon_utils.check(mod.__name__)[0]:
+                bpy.ops.preferences.addon_enable(module=mod.__name__)
+            return True
+    return False
+
+
+def update_viewport():
+    try:
+        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+    except:
+        pass
 
 
 # def cartesian_to_spherical(x, y, z):

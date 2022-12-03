@@ -4,6 +4,7 @@ import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 from . import import_handler
+from . import utils
 
 
 class ImportXPSButton(Operator, ImportHelper):
@@ -29,10 +30,23 @@ class ImportXPSButton(Operator, ImportHelper):
         return {'FINISHED'}
 
 
+class SelectInstallDirButton(Operator, ImportHelper):
+    bl_idname = "xps_importer.select_install_dir"
+    bl_label = "Select XNALara Installation Directory"
+    bl_description = "Select the XNALara installation folder containing the 'XNALara XPS.exe' file and the 'data' folder." \
+                     "\nThis will be used for character imports placed in this directory"
+
+    def execute(self, context):
+        filepath = pathlib.Path(self.filepath)
+        context.scene.xps_importer_install_dir = str(filepath.parent.absolute())
+        utils.update_viewport()
+        return {'FINISHED'}
+
+
 class ImportXPSTestButton(Operator):
     bl_idname = "xps_importer.import_xps_test"
     bl_label = "Dev Test Button"
-    bl_description = "Imports a test XPS scene file"
+    bl_description = "Does lots of dev magic"
     bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
 
     def execute(self, context):
@@ -42,7 +56,7 @@ class ImportXPSTestButton(Operator):
             return {'CANCELLED'}
 
         # Custom test scene
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\cam_test.scene")
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\char_test.scene")
         self.report({'INFO'}, f"Small test successful!")
         return {'FINISHED'}
 

@@ -14,11 +14,21 @@ class Panel(object):
 
 class MainPanel(Panel, bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_xps_importer_main'
-    bl_label = 'XPS Importer'
+    bl_label = 'XPS Scene Importer'
 
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = False
+
+        # XPS install directory
+        row = layout.row(align=True)
+        row.scale_y = 0.5
+        row.label(text="XPS Install Dir:")
+        row = layout.row(align=True)
+        row.prop(context.scene, "xps_importer_install_dir", text="")
+        row.operator(ops.SelectInstallDirButton.bl_idname, text="", icon="FILE_FOLDER")
+
+        layout.separator()
 
         row = layout.row(align=True)
         row.scale_y = 1.6
