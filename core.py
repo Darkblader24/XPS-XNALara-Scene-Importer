@@ -13,7 +13,7 @@ class SceneConstructor:
     def __init__(self, name: str):
         self.name = name
 
-        self.collection = self._create_scene_collection()
+        self.collection, self.scene_controller = self._create_scene_collection()
         self.can_import_characters = utils.check_for_xps_importer()
 
         self.active_armature = None
@@ -21,7 +21,10 @@ class SceneConstructor:
     def _create_scene_collection(self):
         collection = bpy.data.collections.new(self.name)
         bpy.context.scene.collection.children.link(collection)
-        return collection
+
+        scene_controller = utils.create_empty(link_collection=collection)
+        scene_controller.name = "Scene Controller"
+        return collection, scene_controller
 
     def create_light(self, index, direction, intensity, color, shadow_depth):
         # Set name
@@ -68,6 +71,8 @@ class SceneConstructor:
             empty.name = f"{light.name} Controller"
             light.parent = empty
 
+            empty.parent = self.scene_controller
+
     def create_camera(self, fov, target_pos, distance, rotation_horizontal, rotation_vertical):
         # Create camera object
         camera_data = bpy.data.cameras.new(name="Camera")
@@ -78,6 +83,7 @@ class SceneConstructor:
         camera_controller = utils.create_empty(link_collection=self.collection)
         camera_controller.name = "Camera Controller"
         camera.parent = camera_controller
+        camera_controller.parent = self.scene_controller
 
         # Move camera to the correct distance
         camera.location[2] = distance
@@ -197,12 +203,20 @@ class SceneConstructor:
         for obj in character_collection.objects:
             if obj.type == "ARMATURE":
                 self.active_armature = obj
+                self.active_armature.parent = self.scene_controller
+                self.active_armature.name = character_folder.parts[-1]
                 break
         if not self.active_armature:
             print(f"Character collection '{character_collection.name}' does not contain an armature, skipping character pose.")
             return
 
-        return character_collection
+        # Move all objects from the character-collection to this xps scene collection
+        for obj in character_collection.objects:
+            self.collection.objects.link(obj)
+            character_collection.objects.unlink(obj)
+
+        # Delete the character collection
+        bpy.data.collections.remove(character_collection, do_unlink=True)
 
     def pose_character(self, bone_name, rot, loc, scale):
         if not self.active_armature:
