@@ -1,3 +1,4 @@
+import os.path
 import pathlib
 
 import bpy
@@ -119,18 +120,21 @@ class SceneConstructor:
             print("XPS Importer not installed, skipping character import.")
             return
 
+        # Turn windows path into a path independant on os
+        filepath_split = file_directory.split("\\")
+
         # Create paths
-        folder = pathlib.Path(file_directory)
+        folder = pathlib.Path(*filepath_split)
         folder_installation = pathlib.Path(bpy.context.scene.xps_importer_install_dir)
-        folder_assets = pathlib.Path(bpy.context.scene.xps_importer_install_dir)
+        folder_assets = pathlib.Path(bpy.context.scene.xps_importer_asset_dir)
 
         # Create a list of all the possible folders
-        folders = [folder,
+        folders = [file_directory,
                    folder_installation / folder]
         if folder_assets.exists():
             # Add all variations of the character path to the asset dir to see if any of give contain the character
             for i in range(len(folder.parts) - 1, -1, -1):
-                path = bpy.context.scene.xps_importer_asset_dir / pathlib.Path(*folder.parts[i:])
+                path = folder_assets / pathlib.Path(*folder.parts[i:])
                 if path not in folders:
                     folders.append(path)
 
@@ -149,7 +153,7 @@ class SceneConstructor:
         if not character_folder and folder_assets.exists():
             # Get all folders in the asset dir
             # TODO: Make this yield the folders instead of creating a list
-            folders_all = utils.listdir_r(pathlib.Path(bpy.context.scene.xps_importer_asset_dir), max_depth=max_folder_depth)
+            folders_all = utils.listdir_r(folder_assets, max_depth=max_folder_depth)
             for f in folders_all:
                 print(f"Checking folder '{f}'")
                 if f.name == folder.name:
