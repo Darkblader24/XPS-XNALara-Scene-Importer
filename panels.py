@@ -28,6 +28,14 @@ class MainPanel(Panel, bpy.types.Panel):
         row.prop(context.scene, "xps_importer_install_dir", text="")
         row.operator(ops.SelectInstallDirButton.bl_idname, text="", icon="FILE_FOLDER")
 
+        # XPS install directory
+        row = layout.row(align=True)
+        row.scale_y = 0.5
+        row.label(text="XPS Asset Dir:")
+        row = layout.row(align=True)
+        row.prop(context.scene, "xps_importer_asset_dir", text="")
+        row.operator(ops.SelectAssetDirButton.bl_idname, text="", icon="FILE_FOLDER")
+
         layout.separator()
 
         row = layout.row(align=True)

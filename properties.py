@@ -10,6 +10,11 @@ def register():
         description="XNALara installation folder containing the 'XNALara XPS.exe' file and the 'data' folder",
         default="",
     )
+    Scene.xps_importer_asset_dir = StringProperty(
+        name="Asset Directory",
+        description="The folder containing all of your XPS assets. This folder will be searched for any missing assets",
+        default="",
+    )
 
 
 

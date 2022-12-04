@@ -38,6 +38,7 @@ classes = [
     operators.ImportXPSButton,
     operators.ImportXPSTestButton,
     operators.SelectInstallDirButton,
+    operators.SelectAssetDirButton,
 ]
 
 

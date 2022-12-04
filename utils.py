@@ -1,6 +1,7 @@
 
 import bpy
 import math
+import pathlib
 import mathutils
 import addon_utils
 import numpy as np
@@ -59,7 +60,7 @@ def create_empty(link_collection=None):
     return empty
 
 
-def look_at(obj, location, keep_empty=False):
+def look_at_2(obj, location, keep_empty=False):
     # Create an empty at the location and targeting the object at the empty via the track to constraint
     empty_target = create_empty()
     empty_target.location = location
@@ -70,6 +71,14 @@ def look_at(obj, location, keep_empty=False):
     if not keep_empty:
         bpy.data.objects.remove(empty_target, do_unlink=True)
         return empty_target
+
+
+def look_at(obj: bpy.types.Object, target: mathutils.Vector):
+    """ Rotate the object to look at a target point """
+    direction = target - obj.location
+    q = direction.to_track_quat("-Z", "Y")
+
+    obj.rotation_euler = q.to_euler()
 
 
 def rotate(vector, rot):
@@ -114,6 +123,20 @@ def update_viewport():
         bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
     except:
         pass
+
+
+def listdir_r(dirpath: pathlib.Path, depth=0, max_depth=5):
+    """lists directories and sub-directories recursively. """
+    paths = [dirpath]
+    if depth >= max_depth:
+        return paths
+    for path in dirpath.iterdir():
+        if not path.is_dir():
+            continue
+        rpath = dirpath / path
+        subdirs = listdir_r(rpath, depth + 1, max_depth)
+        paths.extend(subdirs)
+    return paths
 
 
 # def cartesian_to_spherical(x, y, z):
