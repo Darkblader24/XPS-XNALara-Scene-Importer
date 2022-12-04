@@ -14,7 +14,7 @@ class SceneConstructor:
     def __init__(self, name: str):
         self.name = name
 
-        self.collection, self.scene_controller = self._create_scene_collection()
+        self.collection, self.layer_collection, self.scene_controller = self._create_scene_collection()
         self.can_import_characters = utils.check_for_xps_importer()
 
         self.active_armature = None
@@ -23,9 +23,11 @@ class SceneConstructor:
         collection = bpy.data.collections.new(self.name)
         bpy.context.scene.collection.children.link(collection)
 
+        layer_collection = utils.find_layer_collection(collection.name)
+
         scene_controller = utils.create_empty(link_collection=collection)
         scene_controller.name = "Scene Controller"
-        return collection, scene_controller
+        return collection, layer_collection, scene_controller
 
     def create_light(self, index, direction, intensity, color, shadow_depth):
         # Set name
@@ -178,6 +180,9 @@ class SceneConstructor:
         filepath_full = character_folder / mesh_file
         print(f"\nImporting character {str(filepath_full)}...")
 
+        # Set the active collection to this XPS scene collection
+        bpy.context.view_layer.active_layer_collection = self.layer_collection
+
         # Save all current collections to check witch one was added
         collections_pre = [c for c in bpy.data.collections]
 
@@ -197,10 +202,6 @@ class SceneConstructor:
         if not character_collection:
             print(f"Imported character '{filepath_full}' collection not found, skipping character import.")
             return
-
-        # Move the character collection into the scene collection
-        self.collection.children.link(character_collection)
-        bpy.context.scene.collection.children.unlink(character_collection)
 
         # Set the visibility of the character
         character_collection.hide_viewport = not visibility
