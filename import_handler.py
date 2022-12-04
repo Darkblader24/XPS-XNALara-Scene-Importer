@@ -10,11 +10,12 @@ class ImportXPS:
     latest_supported_version = (1, 21)
     latest_supported_version_str = '.'.join(str(x) for x in latest_supported_version)
 
-    def __init__(self, filepath, import_characters, import_lights, import_camera):
+    def __init__(self, filepath, import_models=True, import_lights=True, import_camera=True, exclude_hidden_models=False):
         self.filepath = filepath
-        self.import_characters = import_characters
+        self.import_models = import_models
         self.import_lights = import_lights
         self.import_camera = import_camera
+        self.exclude_hidden_models = exclude_hidden_models
 
         self.io_stream: io.BytesIO = None
 
@@ -90,8 +91,9 @@ class ImportXPS:
             self._print(f"Info: Item {i} scale: {item_scale}")
 
             # Add the character to the scene
-            if self.import_characters:
-                self.scene.add_character(item_path, item_visibility)
+            if self.import_models:
+                if item_visibility or not self.exclude_hidden_models:
+                    self.scene.add_character(item_path, item_visibility)
 
             # Read the bone data
             bone_count = bin_ops.readUInt32(self.io_stream)

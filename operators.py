@@ -13,9 +13,9 @@ class ImportXPSButton(Operator, ImportHelper):
     bl_description = "Imports an XPS scene file"
     bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
 
-    import_characters: bpy.props.BoolProperty(
-        name="Import Characters",
-        description="Import characters from the XPS file",
+    import_models: bpy.props.BoolProperty(
+        name="Import Models",
+        description="Import characters and objects from the XPS file",
         default=True,
     )
     import_lights: bpy.props.BoolProperty(
@@ -28,6 +28,11 @@ class ImportXPSButton(Operator, ImportHelper):
         description="Import camera from the XPS file",
         default=True,
     )
+    exclude_hidden_models: bpy.props.BoolProperty(
+        name="Exclude Hidden Models",
+        description="Excludes characters and objects that are hidden in the XPS file",
+        default=False,
+    )
 
     def execute(self, context):
         filepath = self.filepath
@@ -37,7 +42,7 @@ class ImportXPSButton(Operator, ImportHelper):
             return {'CANCELLED'}
 
         try:
-            import_handler.ImportXPS(filepath, self.import_characters, self.import_lights, self.import_camera)
+            import_handler.ImportXPS(filepath, self.import_models, self.import_lights, self.import_camera, self.exclude_hidden_models)
         except ValueError as e:
             self.report({"ERROR"}, str(e))
             return {'CANCELLED'}

@@ -203,9 +203,10 @@ class SceneConstructor:
             print(f"Imported character '{filepath_full}' collection not found, skipping character import.")
             return
 
-        # Set the visibility of the character
-        character_collection.hide_viewport = not visibility
-        character_collection.hide_render = not visibility
+        # Hide all objects in the collection if they should be hidden
+        for obj in character_collection.objects:
+            obj.hide_set(not visibility)
+            obj.hide_render = not visibility
 
         # Get the armature from the collection and set it as active
         for obj in character_collection.objects:
