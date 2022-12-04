@@ -71,9 +71,9 @@ class ImportXPS:
         # Read items
         for i in range(item_count):
             # Read the item info
-            item_type = bin_ops.readString(self.io_stream)
+            item_name = bin_ops.readString(self.io_stream)
             item_path = bin_ops.readString(self.io_stream)
-            self._print(f"Info: Item {i} type: '{item_type}'")
+            self._print(f"Info: Item {i} type: '{item_name}'")
             self._print(f"Info: Item {i} path: '{item_path}'")
 
             # Read the item visibility
@@ -93,7 +93,7 @@ class ImportXPS:
             # Add the character to the scene
             if self.import_models:
                 if item_visibility or not self.exclude_hidden_models:
-                    self.scene.add_character(item_path, item_visibility)
+                    self.scene.add_character(item_path, item_name, item_visibility)
 
             # Read the bone data
             bone_count = bin_ops.readUInt32(self.io_stream)

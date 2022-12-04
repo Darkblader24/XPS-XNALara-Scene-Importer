@@ -116,7 +116,7 @@ class SceneConstructor:
         # Set this camera to active
         bpy.context.scene.camera = camera
 
-    def add_character(self, file_directory, visibility):
+    def add_character(self, file_directory, file_name, visibility):
         self.active_armature = None
         if not self.can_import_characters:
             print("XPS Importer not installed, skipping character import.")
@@ -130,7 +130,7 @@ class SceneConstructor:
         folder_installation = pathlib.Path(bpy.context.scene.xps_importer_install_dir)
         folder_assets = pathlib.Path(bpy.context.scene.xps_importer_asset_dir)
 
-        print(f"\nStarting search for character folder '{folder.name}'")
+        print(f"\nStarting search for character '{folder.name}/{file_name}.mesh/.xps/.ascii'")
 
         # Create a list of all the possible folders
         folders = [file_directory,
@@ -145,7 +145,7 @@ class SceneConstructor:
         # Check each folder for the character folder
         character_folder = None
         for f in folders:
-            print(f"Checking folder '{f}', exists: {os.path.isdir(str(f))}")
+            # print(f"Checking folder '{f}', exists: {os.path.isdir(str(f))}")
             if os.path.isdir(str(f)):
                 character_folder = f
                 break
@@ -157,9 +157,9 @@ class SceneConstructor:
             # TODO: Make this yield the folders instead of creating a list
             folders_all = utils.listdir_r(folder_assets, max_depth=max_folder_depth)
             for f in folders_all:
-                print(f"Checking folder '{f}'")
+                # print(f"Checking folder '{f}'")
                 if f.name == folder.name:
-                    print(f"FOUND!")
+                    # print(f"FOUND!")
                     character_folder = f
                     break
 
@@ -167,14 +167,15 @@ class SceneConstructor:
             print(f"Character folder '{file_directory}' does not exist and was not found in any selected directory, skipping character import.")
             return
 
-        # Search in the folder for a .mesh file
+        # Search in the folder for the file name + ".mesh" or ".xps" or ".ascii"
         mesh_file = None
         for file in character_folder.iterdir():
             if file.suffix in [".mesh", ".xps", ".ascii"]:
-                mesh_file = file
-                break
+                if file.stem == file_name or file.stem == file_name.lower():
+                    mesh_file = file
+                    break
         if not mesh_file:
-            print(f"Character folder '{character_folder}' does not contain a character file (.xps, .mesh, .ascii), skipping character import.")
+            print(f"Character folder '{character_folder}' does not contain the file {file_name} (.xps, .mesh, .ascii), skipping character import.")
             return
 
         filepath_full = character_folder / mesh_file
