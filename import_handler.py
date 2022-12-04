@@ -1,3 +1,4 @@
+import binascii
 import io
 import pathlib
 
@@ -85,34 +86,37 @@ class ImportXPS:
             self._print(f"Info: Item {i} scale: {item_scale}")
 
             # Add the character to the scene
-            char_collection = self.scene.add_character(item_path, item_scale, item_visibility)
+            self.scene.add_character(item_path, item_visibility)
 
-            # Skip all the armature stuff
-            self.io_stream.read(4)  # Skip one single
-            while True:
+            # Read the bone data
+            bone_count = bin_ops.readUInt32(self.io_stream)
+            print(f"Info: Item {i} bone count: {bone_count}")
+            for _ in range(bone_count):
                 bone_name = bin_ops.readString(self.io_stream)
-                rotation = (bin_ops.readSingle(self.io_stream),
-                            bin_ops.readSingle(self.io_stream),
-                            bin_ops.readSingle(self.io_stream))
+                rotation = (round(bin_ops.readSingle(self.io_stream), 4),
+                            round(bin_ops.readSingle(self.io_stream), 4),
+                            round(bin_ops.readSingle(self.io_stream), 4))
                 location = (round(bin_ops.readSingle(self.io_stream), 4),
                             round(bin_ops.readSingle(self.io_stream), 4),
                             round(bin_ops.readSingle(self.io_stream), 4))
-                scale = (bin_ops.readSingle(self.io_stream),
-                         bin_ops.readSingle(self.io_stream),
-                         bin_ops.readSingle(self.io_stream))
-                self._print(f"Info: Bone name: '{bone_name}'")
-                self._print(f"Info: Bone rot: {rotation}, loc: {location}, scale: {scale}")
+                scale = (round(bin_ops.readSingle(self.io_stream), 4),
+                         round(bin_ops.readSingle(self.io_stream), 4),
+                         round(bin_ops.readSingle(self.io_stream), 4))
+                # self._print(f"Info: Bone name: '{bone_name}'")
+                # self._print(f"Info: Bone rot: {rotation}, loc: {location}, scale: {scale}")
 
-                self.scene.pose_character(char_collection, bone_name, rotation, location, scale)
+                self.scene.pose_character(bone_name, rotation, location, scale)
 
-                # Check if is end of armature
-                byte = self.io_stream.read(1)
-                self.io_stream.seek(self.io_stream.tell() - 1)  # Go back to the previous byte
-                if byte == b'\x00':
-                    break
+            # Read character location
+            item_location = (bin_ops.readSingle(self.io_stream),
+                             bin_ops.readSingle(self.io_stream),
+                             bin_ops.readSingle(self.io_stream))
+            self._print(f"Info: Item {i} location: {item_location}")
+
+            # Set character location
+            self.scene.transform_character(item_location, item_scale)
 
             # Skip all the accessorises
-            self.io_stream.read(3 * 4)  # Skip three singles
             accessory_count = bin_ops.readUInt32(self.io_stream)
             for _ in range(accessory_count):
                 name = bin_ops.readString(self.io_stream)

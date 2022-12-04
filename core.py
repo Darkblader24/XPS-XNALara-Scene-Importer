@@ -1,7 +1,7 @@
 import pathlib
 
 import bpy
-from mathutils import Color, Matrix, Euler
+from mathutils import Color, Matrix, Euler, Vector
 from math import radians, degrees
 import math
 
@@ -15,6 +15,8 @@ class SceneConstructor:
 
         self.collection = self._create_scene_collection()
         self.can_import_characters = utils.check_for_xps_importer()
+
+        self.active_armature = None
 
     def _create_scene_collection(self):
         collection = bpy.data.collections.new(self.name)
@@ -105,10 +107,12 @@ class SceneConstructor:
         # Set this camera to active
         bpy.context.scene.camera = camera
 
-    def add_character(self, file_directory, scale, visibility):
+    def add_character(self, file_directory, visibility):
+        self.active_armature = None
         if not self.can_import_characters:
             print("XPS Importer not installed, skipping character import.")
             return
+
         # Create paths
         folder = pathlib.Path(file_directory)
         folder_installation = pathlib.Path(bpy.context.scene.xps_importer_install_dir)
@@ -159,7 +163,7 @@ class SceneConstructor:
             return
 
         filepath_full = character_folder / mesh_file
-        print(f"Importing character {str(filepath_full)}...")
+        print(f"\nImporting character {str(filepath_full)}...")
 
         # Save all current collections to check witch one was added
         collections_pre = [c for c in bpy.data.collections]
@@ -169,6 +173,7 @@ class SceneConstructor:
             "EXEC_DEFAULT",
             filepath=str(filepath_full),
         )
+        print(f"Imported character {str(filepath_full)}...\n")
 
         # Get the added collection
         character_collection = None
@@ -183,77 +188,48 @@ class SceneConstructor:
         # Move the character collection into the scene collection
         self.collection.children.link(character_collection)
         bpy.context.scene.collection.children.unlink(character_collection)
-        
-        # Scale the character
-        for obj in character_collection.objects:
-            obj.scale = scale
 
         # Set the visibility of the character
         character_collection.hide_viewport = not visibility
         character_collection.hide_render = not visibility
 
+        # Get the armature from the collection and set it as active
+        for obj in character_collection.objects:
+            if obj.type == "ARMATURE":
+                self.active_armature = obj
+                break
+        if not self.active_armature:
+            print(f"Character collection '{character_collection.name}' does not contain an armature, skipping character pose.")
+            return
+
         return character_collection
 
-    def pose_character(self, char_collection, bone_name, rot, loc, scale):
-        return
-        # Get the armature
-        armature = None
-        for obj in char_collection.objects:
-            if obj.type == "ARMATURE":
-                armature = obj
-                break
-        if not armature:
-            print(f"Character collection '{char_collection.name}' does not contain an armature, skipping character pose.")
+    def pose_character(self, bone_name, rot, loc, scale):
+        if not self.active_armature:
             return
 
         # Get the bone
-        bone = armature.pose.bones.get(bone_name)
+        bone = self.active_armature.pose.bones.get(bone_name)
         if not bone:
-            print(f"Character collection '{char_collection.name}' does not contain bone '{bone_name}', skipping character pose.")
+            print(f"Armature '{self.active_armature.name}' does not contain bone '{bone_name}', skipping bone pose.")
             return
 
-        if not rot[0] and not rot[1] and not rot[2]:
-            return
+        # Posing bone
+        if rot[0] or rot[1] or rot[2]:
+            utils.xps_bone_rotate(bone, Vector(rot))
 
-        print(f"Pose character {char_collection.name} bone {bone_name} rot {rot} loc {loc} scale {scale}")
+        if loc[0] or loc[1] or loc[2]:
+            utils.xps_bone_translate(bone, Vector(loc))
 
-        # Calc new rotation from XPS to Blender space
-        rot = utils.rotate((radians(rot[0]), radians(rot[1]), radians(rot[2])), (90, 0, 0))
-        rot_in_degrees = (degrees(rot[0]), degrees(rot[1]), degrees(rot[2]))
+        if scale[0] != 1 or scale[1] != 1 or scale[2] != 1:
+            # TODO: This is absolutely not like the XPS behavior, but it's somewhat close
+            utils.xps_bone_scale(bone, Vector(scale))
 
-        # Set the bone rotation
-        bone.rotation_mode = 'XYZ'
-        # bone.rotation_euler = (radians(rot[0]), radians(rot[1]), radians(rot[2]))
-
-        #
-        # print("GLOBAL EULER", bone.matrix.to_euler())
-        #
-        # loc = bone.matrix.to_translation()
-        #
-        # # Rotation only (strip location and scale)
-        # rot_euler = bone.matrix.to_euler()
-        # rot_euler_rotated = Euler(utils.rotate((rot_euler.x, rot_euler.y, rot_euler.z), rot_in_degrees))
-        # rot = rot_euler_rotated.to_matrix().to_4x4()
-        #
-        # s = bone.matrix.to_scale()
-        # scale = Matrix()
-        # scale[0][0] = s[0]
-        # scale[1][1] = s[1]
-        # scale[2][2] = s[2]
-        #
-        # mat = loc * rot * scale
-        #
-        # bone.matrix = mat
-
-        # Enter pose mode
-        utils.set_active(armature, select=True, deselect_others=True)
-        bpy.ops.object.mode_set(mode='POSE')
-
-        # Select the bone
-        bone.select = True
-
-        # Rotate
-        bpy.ops.transform.rotate(value=0.785398, orient_axis="Y", orient_type='GLOBAL')
+    def transform_character(self, location, scale):
+        x, y, z = location
+        self.active_armature.location = (x, -z, y)
+        x, y, z = scale
+        self.active_armature.scale = (x, z, y)
 
     def remove(self):
         layer_collection = utils.find_layer_collection(self.collection.name)

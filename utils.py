@@ -5,6 +5,8 @@ import pathlib
 import mathutils
 import addon_utils
 import numpy as np
+from mathutils import Vector, Euler
+from math import radians
 
 from bpy.types import LayerCollection
 
@@ -137,6 +139,85 @@ def listdir_r(dirpath: pathlib.Path, depth=0, max_depth=5):
         subdirs = listdir_r(rpath, depth + 1, max_depth)
         paths.extend(subdirs)
     return paths
+
+
+def rotate_bone_global(rot):
+    # This requires the armature to be in pose mode and the bone to be selected
+    # Make sure to select the bone view armature.data.bones
+    area = [a for a in bpy.context.screen.areas if a.type == "VIEW_3D"][0]
+    with bpy.context.temp_override(area=area):
+        bpy.ops.transform.rotate(value=-rot[0], orient_axis="X", orient_type='GLOBAL')
+        bpy.ops.transform.rotate(value=-rot[1], orient_axis="Y", orient_type='GLOBAL')
+        bpy.ops.transform.rotate(value=-rot[2], orient_axis="Z", orient_type='GLOBAL')
+
+
+def move_bone_global(bone, loc: Vector):
+    # This requires the armature to be in pose mode and the bone to be selected
+    # Make sure to select the bone view armature.data.bones
+
+    # Get the current global bone location and add the new location
+    bone_global_pos = bone.matrix @ bone.location
+    pos_new = bone_global_pos + loc
+
+    # Set the new global location
+    bone.location = bone.bone.matrix_local.inverted() @ pos_new
+
+
+def xps_bone_rotate(bone, rot_delta):
+    current_rotation_mode = bone.rotation_mode
+    bone.rotation_mode = 'QUATERNION'
+    rotation = vector_transform(rot_delta)
+    eulerRot = xps_rot_to_euler(rotation)
+    origRot = bone.bone.matrix_local.to_quaternion()  # LOCAL EditBone
+
+    rotation = eulerRot.to_quaternion()
+    bone.rotation_quaternion = origRot.inverted() @ rotation @ origRot
+    bone.rotation_mode = current_rotation_mode
+
+
+def xps_bone_translate(bone, loc_delta):
+    translate = vector_transform_translate(loc_delta)
+    origRot = bone.bone.matrix_local.to_quaternion()  # LOCAL EditBone
+
+    bone.location = origRot.inverted() @ translate
+
+
+def xps_bone_scale(bone, scale):
+    newScale = vector_transform_scale(scale)
+    bone.scale = newScale
+
+
+def xps_rot_to_euler(rot_delta):
+    xRad = radians(rot_delta.x)
+    yRad = radians(rot_delta.y)
+    zRad = radians(rot_delta.z)
+    return Euler((xRad, yRad, zRad), 'YXZ')
+
+
+def vector_transform(vec):
+    x = vec.x
+    y = vec.y
+    z = vec.z
+    z = -z
+    newVec = Vector((x, z, y))
+    return newVec
+
+
+def vector_transform_translate(vec):
+    x = vec.x
+    y = vec.y
+    z = vec.z
+    z = -z
+    newVec = Vector((x, z, y))
+    return newVec
+
+
+def vector_transform_scale(vec):
+    x = vec.x
+    y = vec.y
+    z = vec.z
+    newVec = Vector((x, y, z))
+    return newVec
 
 
 # def cartesian_to_spherical(x, y, z):
