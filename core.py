@@ -128,6 +128,8 @@ class SceneConstructor:
         folder_installation = pathlib.Path(bpy.context.scene.xps_importer_install_dir)
         folder_assets = pathlib.Path(bpy.context.scene.xps_importer_asset_dir)
 
+        print(f"\nStarting search for character folder '{folder.name}'")
+
         # Create a list of all the possible folders
         folders = [file_directory,
                    folder_installation / folder]
@@ -137,8 +139,6 @@ class SceneConstructor:
                 path = folder_assets / pathlib.Path(*folder.parts[i:])
                 if path not in folders:
                     folders.append(path)
-
-        print(f"\nStarting search for character folder '{folder.name}'")
 
         # Check each folder for the character folder
         character_folder = None
