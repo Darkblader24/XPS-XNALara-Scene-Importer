@@ -143,8 +143,8 @@ class SceneConstructor:
         # Check each folder for the character folder
         character_folder = None
         for f in folders:
-            print(f"Checking folder '{f}', exists: {f.exists()}")
-            if f.exists():
+            print(f"Checking folder '{f}', exists: {os.path.isdir(str(f))}")
+            if os.path.isdir(str(f)):
                 character_folder = f
                 break
 
