@@ -134,23 +134,26 @@ class SceneConstructor:
                 if path not in folders:
                     folders.append(path)
 
+        print(f"\nStarting search for character folder '{folder.name}'")
+
         # Check each folder for the character folder
         character_folder = None
         for f in folders:
+            print(f"Checking folder '{f}', exists: {f.exists()}")
             if f.exists():
                 character_folder = f
                 break
-        
+
         # If the character folder was not found, search the full asset dir for it
         max_folder_depth = 5
         if not character_folder and folder_assets.exists():
-            character_folder_name = folder.parts[-1]
-
             # Get all folders in the asset dir
             # TODO: Make this yield the folders instead of creating a list
-            folders_all = utils.listdir_r(pathlib.Path(bpy.context.scene.xps_importer_asset_dir), max_depth=5)
+            folders_all = utils.listdir_r(pathlib.Path(bpy.context.scene.xps_importer_asset_dir), max_depth=max_folder_depth)
             for f in folders_all:
-                if f.name == character_folder_name:
+                print(f"Checking folder '{f}'")
+                if f.name == folder.name:
+                    print(f"FOUND!")
                     character_folder = f
                     break
 
@@ -240,6 +243,8 @@ class SceneConstructor:
             utils.xps_bone_scale(bone, Vector(scale))
 
     def transform_character(self, location, scale):
+        if not self.active_armature:
+            return
         x, y, z = location
         self.active_armature.location = (x, -z, y)
         x, y, z = scale
