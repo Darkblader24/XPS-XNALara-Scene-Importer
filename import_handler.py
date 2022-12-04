@@ -10,8 +10,12 @@ class ImportXPS:
     latest_supported_version = (1, 21)
     latest_supported_version_str = '.'.join(str(x) for x in latest_supported_version)
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, import_characters, import_lights, import_camera):
         self.filepath = filepath
+        self.import_characters = import_characters
+        self.import_lights = import_lights
+        self.import_camera = import_camera
+
         self.io_stream: io.BytesIO = None
 
         filepath = pathlib.Path(filepath)
@@ -86,7 +90,8 @@ class ImportXPS:
             self._print(f"Info: Item {i} scale: {item_scale}")
 
             # Add the character to the scene
-            self.scene.add_character(item_path, item_visibility)
+            if self.import_characters:
+                self.scene.add_character(item_path, item_visibility)
 
             # Read the bone data
             bone_count = bin_ops.readUInt32(self.io_stream)
@@ -152,7 +157,8 @@ class ImportXPS:
         camera_rotation_vertical = bin_ops.readSingle(self.io_stream)
         self._print(f"Info: Camera rotation: {camera_rotation_horizontal}, {camera_rotation_vertical}")
 
-        self.scene.create_camera(camera_fov, camera_target, camera_distance, camera_rotation_horizontal, camera_rotation_vertical)
+        if self.import_camera:
+            self.scene.create_camera(camera_fov, camera_target, camera_distance, camera_rotation_horizontal, camera_rotation_vertical)
 
     def _read_lights(self):
         self.io_stream.read(4)  # Skip one single
@@ -180,7 +186,8 @@ class ImportXPS:
             self.light_shadow_depth = bin_ops.readSingle(self.io_stream, round_to=2)
             self._print(f"Info: Light {i} shadow depth: {self.light_shadow_depth}")
 
-            self.scene.create_light(i, light_direction, light_intensity, light_color, self.light_shadow_depth)
+            if self.import_lights:
+                self.scene.create_light(i, light_direction, light_intensity, light_color, self.light_shadow_depth)
 
     def _print(self, *text):
         if self.verbose:
