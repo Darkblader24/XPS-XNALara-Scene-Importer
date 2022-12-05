@@ -36,7 +36,7 @@ class ImportXPSButton(Operator, ImportHelper):
     exclude_hidden_models: bpy.props.BoolProperty(
         name="Exclude Hidden Models",
         description="Excludes characters and objects that are hidden in the XPS file",
-        default=False,
+        default=True,
     )
 
     def execute(self, context):
