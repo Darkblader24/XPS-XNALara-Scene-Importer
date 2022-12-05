@@ -62,7 +62,7 @@ class SceneConstructor:
 
             light.data.type = "POINT"
             light.location = -direction * 3
-            light.data.energy = intensity * 2
+            light.data.energy = intensity * 2.4
             light.data.color = c
             light.data.shadow_soft_size = 2
             light.data.use_contact_shadow = True
@@ -112,6 +112,9 @@ class SceneConstructor:
 
         # Apply the focal length
         camera.data.lens = focal_length
+        
+        # More camera settings
+        bpy.context.scene.render.resolution_percentage = 200
 
         # Set this camera to active
         bpy.context.scene.camera = camera
@@ -265,22 +268,17 @@ class SceneConstructor:
         bpy.context.scene.render.resolution_y = height
 
     def create_ground(self, texture_path, visibility):
-        # Problem is that is gives "data/ground.png", but this doesn't exist
+        # Problem is that the scene always contains "data/ground.png" as the texture path, but it doesn't exist as a file
         # XNALara probably defaults to the importing the floor mesh from data/Floor/Floor/Generic_Item.mesh
         # Therefore we just import this by default
 
         self.add_character("data\\Floor\\Floor", "generic_item", visibility)
-
-        # bpy.ops.mesh.primitive_plane_add(size=100, location=(0, 0, 0))
-        # plane = bpy.context.object
-        # plane.name = "Ground"
-        # plane.parent = self.scene_controller
-        # utils.set_hide(plane, not visibility)
-        #
-        # image = None  # TODO search and load image
-        # if image:
-        #     mat = utils.create_ground_material(None)
-        #     plane.data.materials.append(mat)
+        plane_armature = self.active_armature
+        for obj in plane_armature.children:
+            if obj.type != "MESH":
+                continue
+            mat = obj.data.materials[0]
+            mat.shadow_method = 'NONE'
 
 
 
