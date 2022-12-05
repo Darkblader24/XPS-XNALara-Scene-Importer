@@ -28,6 +28,10 @@ class ImportXPS:
 
         self._read_file()
 
+    def _print(self, *text):
+        if self.verbose:
+            print(*text)
+
     def _read_file(self):
         print(f"\nInfo: Reading file: {self.filepath}")
 
@@ -47,6 +51,18 @@ class ImportXPS:
         self._print()
         print("Info: Reading lights..")
         self._read_lights()
+
+        print("Info: Reading post processing..")
+        self._read_post_processing()
+
+        print("Info: Reading background..")
+        self._read_background()
+
+        print("Info: Reading sky dome..")
+        self._read_sky_dome()
+
+        print("Info: Reading window size..")
+        self._read_window_size()
 
     def _get_io_stream(self):
         with open(self.filepath, 'rb') as file:
@@ -191,6 +207,72 @@ class ImportXPS:
             if self.import_lights:
                 self.scene.create_light(i, light_direction, light_intensity, light_color, self.light_shadow_depth)
 
-    def _print(self, *text):
-        if self.verbose:
-            print(*text)
+    def _read_post_processing(self):
+        if self.version < (1, 9):
+            return
+
+        if self.version > (1, 21):
+            use_post_processing = bin_ops.readByte(self.io_stream)
+            self._print(f"Info: Use post processing?: {use_post_processing}")
+
+        brightness = bin_ops.readSingle(self.io_stream)
+        self._print(f"Info: Brightness: {brightness}")
+
+        gamma = bin_ops.readSingle(self.io_stream)
+        self._print(f"Info: Gamma: {gamma}")
+
+        contrast = bin_ops.readSingle(self.io_stream)
+        self._print(f"Info: Contrast: {contrast}")
+
+        saturation = bin_ops.readSingle(self.io_stream)
+        self._print(f"Info: Saturation: {saturation}")
+
+        self.io_stream.read(1)  # Skip 1 bytes
+
+        if self.version > (1, 21):
+            self.io_stream.read(4)  # Skip 4 bytes
+
+    def _read_background(self):
+        display_ground = bin_ops.readByte(self.io_stream)
+        ground_texture_path = bin_ops.readString(self.io_stream)
+        self._print(f"Info: Display ground?: {display_ground}")
+        self._print(f"Info: Ground texture path: {ground_texture_path}")
+
+        if self.version >= (1, 1):
+            background_color = (bin_ops.readByte(self.io_stream),
+                                bin_ops.readByte(self.io_stream),
+                                bin_ops.readByte(self.io_stream))
+            self._print(f"Info: Background color: {background_color}")
+
+        if self.version > (1, 21):
+            self.io_stream.read(1)  # Skip one byte
+
+        background_texture_path = bin_ops.readString(self.io_stream)
+        self._print(f"Info: Background texture: {background_texture_path}")
+
+        if self.version > (1, 21):
+            self.io_stream.read(1)  # Skip one byte
+
+    def _read_sky_dome(self):
+        if self.version >= (1, 6):
+            display_sky_dome = bin_ops.readByte(self.io_stream)
+            self._print(f"Info: Display sky dome?: {display_sky_dome}")
+
+            sky_dome_type = bin_ops.readString(self.io_stream)
+            self._print(f"Info: Sky dome type: {sky_dome_type}")
+
+            sky_dome_rotation = bin_ops.readSingle(self.io_stream)
+            self._print(f"Info: Sky dome rotation: {sky_dome_rotation}")
+
+            sky_dome_elevation = bin_ops.readSingle(self.io_stream)
+            self._print(f"Info: Sky dome elevation: {sky_dome_elevation}")
+
+    def _read_window_size(self):
+        if self.version >= (1, 7):
+            is_maximized = bin_ops.readByte(self.io_stream)
+            self.window_width = bin_ops.readUInt32(self.io_stream)
+            self.window_height = bin_ops.readUInt32(self.io_stream)
+            self._print(f"Info: Is maximized?: {is_maximized}")
+            self._print(f"Info: Window size: {self.window_width}x{self.window_height}")
+
+            self.scene.set_camera_resolution(self.window_width, self.window_height)

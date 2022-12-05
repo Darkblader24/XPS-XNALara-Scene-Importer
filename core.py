@@ -260,3 +260,11 @@ class SceneConstructor:
     def remove(self):
         layer_collection = utils.find_layer_collection(self.collection.name)
         utils.delete_hierarchy(layer_collection)
+
+    def set_camera_resolution(self, width, height):
+        if height > 10000 or width > 10000:
+            print(f"Camera resolution is too big (>10000), likely due to incorrect reading of the scene file.")
+            return
+        bpy.context.scene.render.resolution_x = width
+        bpy.context.scene.render.resolution_y = height
+

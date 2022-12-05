@@ -25,9 +25,11 @@ def roundToMultiple(numToRound, multiple):
     return (numToRound + multiple - 1) // multiple * multiple
 
 
-def readByte(file):
+def readByte(file, print_hex=False):
     numberBin = file.read(1)
     number = struct.unpack(TypeFormat.Byte, numberBin)[0]
+    if print_hex:
+        print(" ", numberBin, binascii.hexlify(numberBin))
     return number
 
 
@@ -69,10 +71,11 @@ def writeUInt32(number):
     return uInt32
 
 
-def readSingle(file, round_to=None):
+def readSingle(file, round_to=None, print_hex=False):
     numberBin = file.read(4)
-    # print(" ", numberBin, binascii.hexlify(numberBin))
     single = struct.unpack(TypeFormat.Single, numberBin)[0]
+    if print_hex:
+        print(" ", numberBin, binascii.hexlify(numberBin))
     if round_to is not None:
         single = round(single, round_to)
     return single

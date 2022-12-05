@@ -90,86 +90,91 @@ class ImportXPSTestButton(Operator):
             return {'CANCELLED'}
 
         # Custom test scene
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\pose_test.scene")
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\pose_test.scene", import_models=True)
         self.report({'INFO'}, f"Small test successful!")
         return {'FINISHED'}
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\lara_scene.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.4:
+
+
+
+
+
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\lara_scene.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.4 or io_handler.window_height != 700:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\3lamptest_NOSCOTT.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.9:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\3lamptest_NOSCOTT.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.9 or io_handler.window_height != 1358:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
         # Test all documented scene files
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights1only.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights1only.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1331:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights2only.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights2only.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1331:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights3only.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights3only.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1331:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights4only.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights4only.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1331:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights5only.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lights5only.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1331:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
         # Test all documented scene files with characters
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest1.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest1.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1297:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest2.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest2.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1297:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest3.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest3.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1297:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest4.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest4.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1297:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest5.scene")
-        if round(io_handler.light_shadow_depth, 2) != 0.85:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Test Files\\lighttest5.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.85 or io_handler.window_height != 1297:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
 
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Lighting-Setting-XPS-2.scene")
-        if round(io_handler.light_shadow_depth, 2) != 1.0:
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Lighting-Setting-XPS-2.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 1.0 or io_handler.window_height != 972:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()
