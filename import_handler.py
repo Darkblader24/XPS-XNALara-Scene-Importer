@@ -10,11 +10,12 @@ class ImportXPS:
     latest_supported_version = (1, 21)
     latest_supported_version_str = '.'.join(str(x) for x in latest_supported_version)
 
-    def __init__(self, filepath, import_models=True, import_lights=True, import_camera=True, exclude_hidden_models=False):
+    def __init__(self, filepath, import_models=True, import_lights=True, import_camera=True, import_ground=True, exclude_hidden_models=False):
         self.filepath = filepath
         self.import_models = import_models
         self.import_lights = import_lights
         self.import_camera = import_camera
+        self.import_ground = import_ground
         self.exclude_hidden_models = exclude_hidden_models
 
         self.io_stream: io.BytesIO = None
@@ -233,10 +234,13 @@ class ImportXPS:
             self.io_stream.read(4)  # Skip 4 bytes
 
     def _read_background(self):
-        display_ground = bin_ops.readByte(self.io_stream)
+        ground_visibility = bin_ops.readByte(self.io_stream)
         ground_texture_path = bin_ops.readString(self.io_stream)
-        self._print(f"Info: Display ground?: {display_ground}")
+        self._print(f"Info: Display ground?: {ground_visibility}")
         self._print(f"Info: Ground texture path: {ground_texture_path}")
+
+        if self.import_ground:
+            self.scene.create_ground(ground_texture_path, ground_visibility)
 
         if self.version >= (1, 1):
             background_color = (bin_ops.readByte(self.io_stream),
@@ -244,14 +248,15 @@ class ImportXPS:
                                 bin_ops.readByte(self.io_stream))
             self._print(f"Info: Background color: {background_color}")
 
-        if self.version > (1, 21):
-            self.io_stream.read(1)  # Skip one byte
-
         background_texture_path = bin_ops.readString(self.io_stream)
-        self._print(f"Info: Background texture: {background_texture_path}")
+        self._print(f"Info: Background texture path: {background_texture_path}")
 
         if self.version > (1, 21):
-            self.io_stream.read(1)  # Skip one byte
+            background_texture_type = bin_ops.readString(self.io_stream)  # Image scale setting: (Fit, Stretch, Crop, Center)
+            self._print(f"Info: Background texture type: {background_texture_type}")
+
+            hud_texture_path = bin_ops.readString(self.io_stream)
+            self._print(f"Info: HUD texture path: {hud_texture_path}")
 
     def _read_sky_dome(self):
         if self.version >= (1, 6):

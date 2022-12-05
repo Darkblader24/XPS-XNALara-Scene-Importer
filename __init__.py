@@ -5,7 +5,7 @@ bl_info = {
     'author': 'XPS',
     'location': 'View 3D > Tool Shelf > XPS',
     'description': 'Import XPS and XNALara scenes',
-    'version': (0, 0, 1),
+    'version': (1, 0, 0),
     'blender': (3, 3, 0),
 }
 

@@ -122,7 +122,7 @@ class SceneConstructor:
             print("XPS Importer not installed, skipping character import.")
             return
 
-        # Turn windows path into a path independant on os
+        # Turn windows path into a path independent on os
         filepath_split = file_directory.split("\\")
 
         # Create paths
@@ -144,11 +144,14 @@ class SceneConstructor:
 
         # Check each folder for the character folder
         character_folder = None
+        mesh_file = None
         for f in folders:
             # print(f"Checking folder '{f}', exists: {os.path.isdir(str(f))}")
             if os.path.isdir(str(f)):
-                character_folder = f
-                break
+                character_folder = pathlib.Path(str(f))
+                mesh_file = utils.search_dir_for_file(character_folder, file_name)
+                if mesh_file:
+                    break
 
         # If the character folder was not found, search the full asset dir for it
         max_folder_depth = 5
@@ -161,21 +164,15 @@ class SceneConstructor:
                 if f.name == folder.name:
                     # print(f"FOUND!")
                     character_folder = f
-                    break
+                    mesh_file = utils.search_dir_for_file(character_folder, file_name)
+                    if mesh_file:
+                        break
 
         if not character_folder or not character_folder.exists():
             print(f"Character folder '{file_directory}' does not exist and was not found in any selected directory, skipping character import.")
             return
-
-        # Search in the folder for the file name + ".mesh" or ".xps" or ".ascii"
-        mesh_file = None
-        for file in character_folder.iterdir():
-            if file.suffix in [".mesh", ".xps", ".ascii"]:
-                if file.stem == file_name or file.stem == file_name.lower():
-                    mesh_file = file
-                    break
         if not mesh_file:
-            print(f"Character folder '{character_folder}' does not contain the file {file_name} (.xps, .mesh, .ascii), skipping character import.")
+            print(f"Could not find any folder '{character_folder.name}' containing the file '{file_name}' (.xps, .mesh, .ascii).")
             return
 
         filepath_full = character_folder / mesh_file
@@ -206,8 +203,7 @@ class SceneConstructor:
 
         # Hide all objects in the collection if they should be hidden
         for obj in character_collection.objects:
-            obj.hide_set(not visibility)
-            obj.hide_render = not visibility
+            utils.set_hide(obj, not visibility)
 
         # Get the armature from the collection and set it as active
         for obj in character_collection.objects:
@@ -235,7 +231,7 @@ class SceneConstructor:
         # Get the bone
         bone = self.active_armature.pose.bones.get(bone_name)
         if not bone:
-            print(f"Armature '{self.active_armature.name}' does not contain bone '{bone_name}', skipping bone pose.")
+            # print(f"Armature '{self.active_armature.name}' does not contain bone '{bone_name}', skipping bone pose.")
             return
 
         # Posing bone
@@ -267,4 +263,24 @@ class SceneConstructor:
             return
         bpy.context.scene.render.resolution_x = width
         bpy.context.scene.render.resolution_y = height
+
+    def create_ground(self, texture_path, visibility):
+        # Problem is that is gives "data/ground.png", but this doesn't exist
+        # XNALara probably defaults to the importing the floor mesh from data/Floor/Floor/Generic_Item.mesh
+        # Therefore we just import this by default
+
+        self.add_character("data\\Floor\\Floor", "generic_item", visibility)
+
+        # bpy.ops.mesh.primitive_plane_add(size=100, location=(0, 0, 0))
+        # plane = bpy.context.object
+        # plane.name = "Ground"
+        # plane.parent = self.scene_controller
+        # utils.set_hide(plane, not visibility)
+        #
+        # image = None  # TODO search and load image
+        # if image:
+        #     mat = utils.create_ground_material(None)
+        #     plane.data.materials.append(mat)
+
+
 

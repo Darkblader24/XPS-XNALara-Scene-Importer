@@ -28,6 +28,11 @@ class ImportXPSButton(Operator, ImportHelper):
         description="Import camera from the XPS file",
         default=True,
     )
+    import_ground: bpy.props.BoolProperty(
+        name="Import Ground",
+        description="Import ground from the XPS file",
+        default=True,
+    )
     exclude_hidden_models: bpy.props.BoolProperty(
         name="Exclude Hidden Models",
         description="Excludes characters and objects that are hidden in the XPS file",
@@ -42,7 +47,7 @@ class ImportXPSButton(Operator, ImportHelper):
             return {'CANCELLED'}
 
         try:
-            import_handler.ImportXPS(filepath, self.import_models, self.import_lights, self.import_camera, self.exclude_hidden_models)
+            import_handler.ImportXPS(filepath, self.import_models, self.import_lights, self.import_camera, self.import_ground, self.exclude_hidden_models)
         except ValueError as e:
             self.report({"ERROR"}, str(e))
             return {'CANCELLED'}
@@ -90,7 +95,7 @@ class ImportXPSTestButton(Operator):
             return {'CANCELLED'}
 
         # Custom test scene
-        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\pose_test.scene", import_models=True)
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\lara_scene.scene", import_models=True)
         self.report({'INFO'}, f"Small test successful!")
         return {'FINISHED'}
 
@@ -175,6 +180,12 @@ class ImportXPSTestButton(Operator):
 
         io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\Lighting-Setting-XPS-2.scene", import_models=False)
         if round(io_handler.light_shadow_depth, 2) != 1.0 or io_handler.window_height != 972:
+            self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
+            return {'CANCELLED'}
+        io_handler.scene.remove()
+
+        io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\background_test.scene", import_models=False)
+        if round(io_handler.light_shadow_depth, 2) != 0.4 or io_handler.window_height != 700:
             self.report({'ERROR'}, f"Error importing XPS file {io_handler.filepath}")
             return {'CANCELLED'}
         io_handler.scene.remove()

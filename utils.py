@@ -25,7 +25,7 @@ def set_select(obj, select):
 
 
 def set_hide(obj, hide):
-    # obj.hide_viewport = hide
+    obj.hide_viewport = hide
     obj.hide_set(hide)
 
 
@@ -218,6 +218,35 @@ def vector_transform_scale(vec):
     z = vec.z
     newVec = Vector((x, y, z))
     return newVec
+
+
+def create_ground_material(image: bpy.types.Image):
+    mat = bpy.data.materials.new(name="Ground Material")
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+
+    # Get existing BSDF node
+    bsdf_node = mat.node_tree.nodes["Principled BSDF"]
+
+    # Create image node
+    image_node = nodes.new(type="ShaderNodeTexImage")
+    image_node.image = image
+    image_node.location = (-300, 300)
+
+    # Link image with BSDF
+    mat.node_tree.links.new(image_node.outputs["Color"], bsdf_node.inputs["Base Color"])
+
+    return mat
+
+
+def search_dir_for_file(path: pathlib.Path, file_name: str):
+    # Search in the folder for the file name + ".mesh" or ".xps" or ".ascii"
+    for file in path.iterdir():
+        if file.suffix in [".mesh", ".xps", ".ascii"]:
+            if file.stem.lower() == file_name.lower():
+                return file
+
+    print(f"Character folder '{path}' does not contain the file {file_name} (.xps, .mesh, .ascii), continuing search..")
 
 
 # def cartesian_to_spherical(x, y, z):
