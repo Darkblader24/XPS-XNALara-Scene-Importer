@@ -4,20 +4,31 @@ This Blender plugin allows XPS users to easily import their .scene files into Bl
 
 This tool works just the same as XPS’s scene importer, and brings your entire scene into Blender for convenient high-quality rendering, exactly as you created it. It retrieves the correct .meshes, applies the right poses and transformations, and builds new adjustable lamps from XPS’s lights - no need to manually redo any of your existing work.
 
+<p align="center">
+  <img height="500" src="https://i.imgur.com/xQDguPZ.png">
+</p>
 
 ---
 
 ### [Download](https://github.com/Darkblader24/XPS-XNALara-Scene-Importer/archive/refs/heads/master.zip)
 
 ### Features
-  - Import Models, Poses, Lights, Camera and Ground
+- Import Models, Poses, Lights, Camera and Ground
 
 ### Requirements
-  - Blender 3.3 or above
-  - For model import: [XNALaraMesh Plugin](https://github.com/johnzero7/XNALaraMesh)
+- Blender 3.3 or above
+- For model import: [XNALaraMesh Plugin](https://github.com/johnzero7/XNALaraMesh)
 
-### Example
-  <img src="https://i.imgur.com/xQDguPZ.png" height="500"/>
+### Installation
+- [Download](https://github.com/Darkblader24/XPS-XNALara-Scene-Importer/archive/refs/heads/master.zip) the latest release
+- Install the downloaded zip file via the Blender User Preferences
+
+### Usage
+- In the 3D View, open the panel (N) and select the XPS tab
+- Optionally select your XPS installation folder and your XPS asset folder
+  - These folders will be searched for any missing assets, so make sure they are there
+- Click the "Import Scene" button and select your .scene file
+- Watch the magic happen
 
 ---
 
@@ -27,12 +38,6 @@ This tool works just the same as XPS’s scene importer, and brings your entire 
 
 XPS is a fantastic and simple tool for posing and scene construction, and its convenient sliders and color picker make it possible to quickly build vivid, colorful light setups. However, for 3D artists looking to improve their realism, it has some shortcomings, especially the lack of cast shadows. Blender’s Eevee engine is extremely capable and works in real time, just the same as XPS, and it renders quickly and allows for multiple saved camera angles, strongly improving upon XPS’s existing functions. 
 XPS has often been treated as a tool in a larger rendering workflow, where you import your character and create your pose, then export as .obj to render in a different program. But what if you want to adjust your pose after export? What if you like the light setup you already made in XPS? Too bad, so sad - until now! With this plugin, you get the best of both worlds: you can upgrade to Blender 3.3 as your final renderer, and still pose models and build new scenes in XPS, or improve your old XPS scenes with the literal click of a button.
-
-### Installation:
-Download the .zip from Github, then install it in User Preferences. It will appear under View 3D > Tool Shelf once activated.
-
-### Usage:
-Select the XPS Scene Importer, and set your XPS Install Directory and XPS Asset Directory (simply choose your folder called XNALara XPS 11.8 for both, or whichever version you’re running). Then, click Import XPS, choose your .scene file, and watch the magic happen. 
 
 ### Import Options: 
 Within the Import XPS selection window, there are several checkbox options:
