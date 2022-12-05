@@ -13,6 +13,8 @@ class ImportXPSButton(Operator, ImportHelper):
     bl_description = "Imports an XPS scene file"
     bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
 
+    filter_glob: bpy.props.StringProperty(default="*.scene", options={'HIDDEN'})
+
     import_models: bpy.props.BoolProperty(
         name="Import Models",
         description="Import characters and objects from the XPS file",
@@ -47,9 +49,13 @@ class ImportXPSButton(Operator, ImportHelper):
             return {'CANCELLED'}
 
         try:
-            import_handler.ImportXPS(filepath, self.import_models, self.import_lights, self.import_camera, self.import_ground, self.exclude_hidden_models)
+            importer = import_handler.ImportXPS(filepath, self.import_models, self.import_lights, self.import_camera, self.import_ground, self.exclude_hidden_models)
         except ValueError as e:
             self.report({"ERROR"}, str(e))
+            return {'CANCELLED'}
+
+        if importer.scene.error_handler.has_errors():
+            self.report({"ERROR"}, importer.scene.error_handler.get_error_message())
             return {'CANCELLED'}
 
         self.report({'INFO'}, f"Imported XPS file {filepath}")
@@ -97,7 +103,7 @@ class ImportXPSTestButton(Operator):
         # Custom test scene
         io_handler = import_handler.ImportXPS("E:\\Work\\judgearts - XPS Importer\\lara_scene.scene", import_models=True)
         self.report({'INFO'}, f"Small test successful!")
-        return {'FINISHED'}
+        # return {'FINISHED'}
 
 
 

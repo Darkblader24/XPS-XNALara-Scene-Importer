@@ -13,6 +13,7 @@ class SceneConstructor:
 
     def __init__(self, name: str):
         self.name = name
+        self.error_handler: ErrorHandler = ErrorHandler()
 
         self.collection, self.layer_collection, self.scene_controller = self._create_scene_collection()
         self.can_import_characters = utils.check_for_xps_importer()
@@ -122,7 +123,7 @@ class SceneConstructor:
     def add_character(self, file_directory, file_name, visibility):
         self.active_armature = None
         if not self.can_import_characters:
-            print("XPS Importer not installed, skipping character import.")
+            self.error_handler.add_error("XPS Importer not installed, skipping character import.")
             return
 
         # Turn windows path into a path independent on os
@@ -172,10 +173,10 @@ class SceneConstructor:
                         break
 
         if not character_folder or not character_folder.exists():
-            print(f"Character folder '{file_directory}' does not exist and was not found in any selected directory, skipping character import.")
+            self.error_handler.add_error(f"Character folder '{file_directory}' does not exist and was not found in any selected directory, skipping character import.")
             return
         if not mesh_file:
-            print(f"Could not find any folder '{character_folder.name}' containing the file '{file_name}' (.xps, .mesh, .ascii).")
+            self.error_handler.add_error(f"Could not find any folder '{character_folder.name}' containing the file '{file_name}' (.xps, .mesh, .ascii).")
             return
 
         filepath_full = character_folder / mesh_file
@@ -201,7 +202,7 @@ class SceneConstructor:
                 character_collection = c
                 break
         if not character_collection:
-            print(f"Imported character '{filepath_full}' collection not found, skipping character import.")
+            self.error_handler.add_error(f"Imported character '{filepath_full}' collection not found, skipping character import.")
             return
 
         # Hide all objects in the collection if they should be hidden
@@ -216,7 +217,7 @@ class SceneConstructor:
                 self.active_armature.name = character_folder.parts[-1]
                 break
         if not self.active_armature:
-            print(f"Character collection '{character_collection.name}' does not contain an armature, skipping character pose.")
+            self.error_handler.add_error(f"Character collection '{character_collection.name}' does not contain an armature, skipping character pose.")
             return
 
         # Move all objects from the character-collection to this xps scene collection
@@ -262,7 +263,8 @@ class SceneConstructor:
 
     def set_camera_resolution(self, width, height):
         if height > 10000 or width > 10000:
-            print(f"Camera resolution is too big (>10000), likely due to incorrect reading of the scene file.")
+            self.error_handler.add_error(f"Camera resolution is too big (>10000), likely due to incorrect reading of the scene file."
+                                         f"\n    Please report this in our Github repository and attach this scene file.")
             return
         bpy.context.scene.render.resolution_x = width
         bpy.context.scene.render.resolution_y = height
@@ -279,6 +281,27 @@ class SceneConstructor:
                 continue
             mat = obj.data.materials[0]
             mat.shadow_method = 'NONE'
+
+
+class ErrorHandler:
+    def __init__(self):
+        self.errors = []
+
+    def add_error(self, error):
+        if error not in self.errors:
+            self.errors.append(error)
+        print(error)
+
+    def get_error_message(self):
+        error_msg = "Errors while importing scene:\n"
+        for error in self.errors:
+            error_msg += f"- {error}\n"
+
+        print(error_msg)
+        return error_msg
+    
+    def has_errors(self):
+        return len(self.errors) > 0
 
 
 
