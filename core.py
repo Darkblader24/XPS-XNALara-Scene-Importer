@@ -62,7 +62,7 @@ class SceneConstructor:
 
             light.data.type = "POINT"
             light.location = -direction * 3
-            light.data.energy = intensity * 1.5
+            light.data.energy = intensity * 2
             light.data.color = c
             light.data.shadow_soft_size = 2
             light.data.use_contact_shadow = True
