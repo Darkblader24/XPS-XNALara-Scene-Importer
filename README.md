@@ -75,13 +75,27 @@ Blender renders your image with a press of a button (F12). To make Blender autom
 I’m including a note about easy XPS posing here, since a surprising number of XPS users I’ve met don’t know about it. I prefer XPS posing to Blender posing because of its keyboard shortcuts. Hold down the Q, W, or E keys and click-and-drag to rotate along the X, Y, and Z axes (hold down two keys at once to rotate along 2 axes together.) Hold down Shift to do the same thing but for Move instead of Rotate. For more tips, read the Help menu in XPS, right below the red X button to close the control window.
 
 ### Materials: 
-This plugin is built on the XPS Model Importer by johnzero7: https://github.com/johnzero7/XNALaraMesh It functions exactly the same way. However, there are some small changes and improvements to how it handles materials, and some tips I’d recommend. (Note: I mostly use render groups 24, 25, and 27. I already know RG 40 doesn’t look great in Blender, so I’d stick with the tried and true classics and use the XPS material editor if your import isn’t looking right.)
-- The default XPS importer plugin has an issue with flipping the normals (XPS’s normals configuration is +X, -Y, +Z.), causing them to display upside down. This plugin fixes it by default; nothing to worry about. However, to correct that issue on models imported with the original johnzero plugin, open the Shader Editor, then enter the XPS Shader node group (click the small button in the upper right hand corner, Tab to go back). Adjust the first Invert Channel node's G slider to 1, and you will see the normals return to normal. (lol)
-- This plugin also contains built-in improvements to how Blender 3.3 imports reflective and shiny materials (RG 27), especially hair. I’m including additional adjustment instructions below in case you need to tweak the materials even more.
-- To reduce glossiness/reflectivity, lower the Emission Strength number value in the Materials panel. I find that for overly shiny hair, changing 0.1 to 0.01 looks good. For translucent materials, I’d also recommend changing Blend mode to Alpha Blend.
-- To reduce specularity/shine, make a new copy of the XPS Shader node (click the number, next to the little shield icon.) Then, enter that node group (upper right hand corner button, Tab to go back), and in the Principled BSDF node, lower the Specular number value (right below Metallic). Be careful if you’re only fixing one item; if you don’t make a new copy of the XPS Shader node, that specularity value change will affect every material.
-- To avoid translucent materials casting a shadow when they’re not supposed to (such as smoke or shadow effects) change the Blend mode to Alpha Blend and the Shadow mode to None. 
-- This is a very specific case, but I needed it, so you might too. I use a very thin contact lens-style mesh to add reflective shine to eye irises (a RG 27 material). To make it work correctly, I made another copy of the XPS Shader node, then plugged in the Reflect texture to the Environment slot instead of Emission. Then I set its Emission strength to 0.1 and its Alpha strength to 0.001, and changed its Blend mode to Alpha Blend instead of Hashed. For a glasses lens material, I fixed it exactly the same way as the above, but with an Emission value of .001. Not sure how much the emission number ultimately mattered, but it worked. If you have problems with those types of materials, I’d start here for a fix.
+There are some small changes and improvements to how it handles materials, and some tips I’d recommend. 
+(Note: I mostly use render groups 24, 25, and 27. I already know RG 40 doesn’t look great in Blender, so I’d stick with 
+the tried and true classics and use the XPS material editor if your import isn’t looking right.)
+- The default XPS importer plugin has an issue with flipping the normals (XPS’s normals configuration is +X, -Y, +Z.), 
+  causing them to display upside down. To correct that issue on models imported with the original johnzero plugin, 
+  open the Shader Editor, then enter the XPS Shader node group (click the small button in the upper right hand corner, 
+  Tab to go back). Adjust the first Invert Channel node's G slider to 1, and you will see the normals return to normal.
+- To reduce glossiness/reflectivity, lower the Emission Strength number value in the Materials panel. I find that for overly 
+  shiny hair, changing 0.1 to 0.01 looks good. For translucent materials, I’d also recommend changing Blend mode to Alpha Blend.
+- To reduce specularity/shine, make a new copy of the XPS Shader node (click the number, next to the little shield icon.) Then, 
+  enter that node group (upper right hand corner button, Tab to go back), and in the Principled BSDF node, lower the Specular 
+  number value (right below Metallic). Be careful if you’re only fixing one item; if you don’t make a new copy of the XPS Shader node, 
+  that specularity value change will affect every material.
+- To avoid translucent materials casting a shadow when they’re not supposed to (such as smoke or shadow effects) change 
+   the Blend mode to Alpha Blend and the Shadow mode to None. 
+- This is a very specific case, but I needed it, so you might too. I use a very thin contact lens-style mesh to add reflective 
+  shine to eye irises (a RG 27 material). To make it work correctly, I made another copy of the XPS Shader node, then plugged 
+  in the Reflect texture to the Environment slot instead of Emission. Then I set its Emission strength to 0.1 and its 
+  Alpha strength to 0.001, and changed its Blend mode to Alpha Blend instead of Hashed. For a glasses lens material, I fixed 
+  it exactly the same way as the above, but with an Emission value of .001. Not sure how much the emission number ultimately 
+  mattered, but it worked. If you have problems with those types of materials, I’d start here for a fix.
 
 ### Sampling:
 Blender’s “sampling” parameters (under Scene) are by default Render > 64 and Viewport > 16. These mostly affect how smooth your shadows are. To make your renders save faster, set Render to 32. If your viewport is lagging (though it shouldn’t), reduce that value to 8; conversely, if you want your viewport’s shadows to look more realistic and final, set the value to 32. 
