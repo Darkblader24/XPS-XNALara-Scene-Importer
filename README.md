@@ -91,8 +91,8 @@ Like all other Blender XPS import tools, Scene Importer will show every item on 
 - For character showcase render sets, where you may want to display your model both with and without optional items, I suggest moving their optional items to an extra collection/layer of their own. Use the Outliner menu’s visibility/rendering toggle buttons (the eye and the camera) to shoot your renders without those items.
 
 ### Known Issues:
+- Currently only .scene files version 1.21 or above are supported. If you have older version files, please open an issue with a download link to them.
 - There are no known problems with XPS Scene Importer’s functionality, but we don’t have a way to replicate the Vignette postprocessing parameter. However, see above (Optimization) for tips on recreating your preferred brightness/contrast looks.
-- If the plugin runs into an error on import, it will be shown as a popup. 
 
 ### Addons: 
 - The Collection Manager (built into Blender) is essential. This mostly restores Blender 2.79’s Layers panel, which lets you see where your items are within the .blend file, and hide or show groups and items. 
