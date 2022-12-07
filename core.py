@@ -171,6 +171,26 @@ class SceneConstructor:
 
         # Hide all objects in the collection if they should be hidden
         for obj in character_collection.objects:
+
+            # Hide and rename all accessories
+            if obj.parent and obj.parent.type == "ARMATURE":
+                name = obj.name.split("_")[1]  # Separate name by underscores
+                name = " ".join([s.capitalize() for s in name.split(".")])  # Remove dots and capitalize
+                hide = False
+                if name.startswith("-"):
+                    name = f"Item " + name[1:].capitalize()
+                    hide = True
+                elif name.startswith("+"):
+                    name = f"Item " + name[1:].capitalize()
+
+                if not visibility:
+                    hide = True
+
+                obj.name = name
+                utils.set_hide(obj, hide)
+                continue
+
+            # Hide the rest of the objects
             utils.set_hide(obj, not visibility)
 
         # Get the armature from the collection and set it as active
@@ -264,9 +284,9 @@ class ErrorHandler:
         print(error)
 
     def get_error_message(self):
-        error_msg = "Errors while importing scene:\n"
+        error_msg = "Errors while importing scene:"
         for error in self.errors:
-            error_msg += f"- {error}\n"
+            error_msg += f"\n- {error}"
 
         print(error_msg)
         return error_msg
