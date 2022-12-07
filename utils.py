@@ -14,7 +14,7 @@ from math import radians
 from bpy.types import LayerCollection
 
 
-main_dir = pathlib.Path(os.path.dirname(__file__))
+main_dir = pathlib.Path(__file__).parent
 resources_dir = main_dir / "resources"
 settings_file = resources_dir / "settings.json"
 if not resources_dir.exists():
@@ -44,7 +44,7 @@ def set_hide(obj, hide, hide_render=None):
         obj.hide_render = hide_render
 
 
-# Recursively transverse layer_collection for a particular name
+# Recursively traverse layer_collection for a particular name
 def find_layer_collection(name: str, layer_collection=None):
     if layer_collection is None:
         layer_collection = bpy.context.view_layer.layer_collection

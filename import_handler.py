@@ -281,4 +281,5 @@ class ImportXPS:
             self._print(f"Info: Is maximized?: {is_maximized}")
             self._print(f"Info: Window size: {self.window_width}x{self.window_height}")
 
-            self.scene.set_camera_resolution(self.window_width, self.window_height)
+            if self.import_camera:
+                self.scene.set_camera_resolution(self.window_width, self.window_height)

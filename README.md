@@ -106,6 +106,7 @@ Like all other Blender XPS import tools, Scene Importer will show every item on 
 
 ### Known Issues:
 - Currently only .scene files version 1.21 or above are supported. If you have older version files, please open an issue with a download link to them.
+- The light setup only works well with centered models with the default scale. If you have light setup improvements, please open an issue in this repo
 - There are no known problems with XPS Scene Importer’s functionality, but we don’t have a way to replicate the Vignette postprocessing parameter. However, see above (Optimization) for tips on recreating your preferred brightness/contrast looks.
 
 ### Addons: 
