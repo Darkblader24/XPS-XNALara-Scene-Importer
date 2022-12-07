@@ -38,8 +38,8 @@ def set_hide(obj, hide, hide_render=None):
     if hide_render is None:
         hide_render = hide
 
-    if obj.hide_viewport != hide:
-        obj.hide_viewport = hide
+    if obj.hide_get() != hide:
+        obj.hide_set(hide)
     if obj.hide_render != hide_render:
         obj.hide_render = hide_render
 
