@@ -1,14 +1,24 @@
 
+import os
 import bpy
 import math
+import time
 import pathlib
 import mathutils
 import addon_utils
 import numpy as np
 from mathutils import Vector, Euler
+from threading import Thread
 from math import radians
 
 from bpy.types import LayerCollection
+
+
+main_dir = pathlib.Path(os.path.dirname(__file__))
+resources_dir = main_dir / "resources"
+settings_file = resources_dir / "settings.json"
+if not resources_dir.exists():
+    resources_dir.mkdir()
 
 
 def set_active(obj, select=False, deselect_others=False):
@@ -24,9 +34,14 @@ def set_select(obj, select):
     obj.select_set(select)
 
 
-def set_hide(obj, hide):
-    obj.hide_viewport = hide
-    obj.hide_set(hide)
+def set_hide(obj, hide, hide_render=None):
+    if hide_render is None:
+        hide_render = hide
+
+    if obj.hide_viewport != hide:
+        obj.hide_viewport = hide
+    if obj.hide_render != hide_render:
+        obj.hide_render = hide_render
 
 
 # Recursively transverse layer_collection for a particular name
@@ -247,6 +262,76 @@ def search_dir_for_file(path: pathlib.Path, file_name: str):
                 return file
 
     print(f"Character folder '{path}' does not contain the file {file_name} (.xps, .mesh, .ascii), continuing search..")
+
+
+def search_dirs_for_model(filepath, filename):
+    # Turn windows path into a path independent on os
+    filepath_split = filepath.split("\\")
+
+    has_install_dir = bool(bpy.context.scene.xps_importer_install_dir)
+    has_asset_dir = bool(bpy.context.scene.xps_importer_asset_dir)
+
+    # Create paths
+    folder = pathlib.Path(*filepath_split)
+    folder_installation = pathlib.Path(bpy.context.scene.xps_importer_install_dir)
+    folder_assets = pathlib.Path(bpy.context.scene.xps_importer_asset_dir)
+
+    print(f"\nStarting search for character '{folder.name}/{filename}.mesh/.xps/.ascii'")
+
+    # Create a list of all the possible folders
+    folders = [filepath]
+    if has_install_dir:
+        folders.append(folder_installation / folder)
+    if has_asset_dir and folder_assets.exists():
+        # Add all variations of the character path to the asset dir to see if any of give contain the character
+        for i in range(len(folder.parts) - 1, -1, -1):
+            path = folder_assets / pathlib.Path(*folder.parts[i:])
+            if path not in folders:
+                folders.append(path)
+
+    # Check each folder for the character folder
+    character_folder = None
+    mesh_file = None
+    for f in folders:
+        # print(f"Checking folder '{f}', exists: {os.path.isdir(str(f))}")
+        if os.path.isdir(str(f)):
+            character_folder = pathlib.Path(str(f))
+            mesh_file = search_dir_for_file(character_folder, filename)
+            if mesh_file:
+                break
+
+    # If the character folder was not found, search the full asset dir for it
+    max_folder_depth = 5
+    if not character_folder and has_asset_dir and folder_assets.exists():
+        # Get all folders in the asset dir
+        # TODO: Make this yield the folders instead of creating a list
+        folders_all = listdir_r(folder_assets, max_depth=max_folder_depth)
+        for f in folders_all:
+            # print(f"Checking folder '{f}'")
+            if f.name == folder.name:
+                # print(f"FOUND!")
+                character_folder = f
+                mesh_file = search_dir_for_file(character_folder, filename)
+                if mesh_file:
+                    break
+
+    return character_folder, mesh_file
+
+
+def run_func_after_blender_startup(func):
+
+    def wait_for_scene_load():
+        while True:
+            print("Has scene?")
+            if hasattr(bpy.context, "scene"):
+                print("YES")
+                func()
+                return
+            print("NO")
+            time.sleep(0.1)
+
+    thread = Thread(target=wait_for_scene_load, args=[])
+    thread.start()
 
 
 # def cartesian_to_spherical(x, y, z):

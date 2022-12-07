@@ -1,10 +1,16 @@
-import os.path
-import pathlib
+
 
 import bpy
-from mathutils import Color, Matrix, Euler, Vector
-from math import radians, degrees
 import math
+import json
+import copy
+import time
+import os.path
+import pathlib
+from math import radians, degrees
+from mathutils import Color, Matrix, Euler, Vector
+from threading import Thread
+from bpy.app.handlers import persistent
 
 from . import utils
 
@@ -126,54 +132,12 @@ class SceneConstructor:
             self.error_handler.add_error("XPS Importer not installed, skipping character import.")
             return
 
-        # Turn windows path into a path independent on os
-        filepath_split = file_directory.split("\\")
-
-        # Create paths
-        folder = pathlib.Path(*filepath_split)
-        folder_installation = pathlib.Path(bpy.context.scene.xps_importer_install_dir)
-        folder_assets = pathlib.Path(bpy.context.scene.xps_importer_asset_dir)
-
-        print(f"\nStarting search for character '{folder.name}/{file_name}.mesh/.xps/.ascii'")
-
-        # Create a list of all the possible folders
-        folders = [file_directory,
-                   folder_installation / folder]
-        if folder_assets.exists():
-            # Add all variations of the character path to the asset dir to see if any of give contain the character
-            for i in range(len(folder.parts) - 1, -1, -1):
-                path = folder_assets / pathlib.Path(*folder.parts[i:])
-                if path not in folders:
-                    folders.append(path)
-
-        # Check each folder for the character folder
-        character_folder = None
-        mesh_file = None
-        for f in folders:
-            # print(f"Checking folder '{f}', exists: {os.path.isdir(str(f))}")
-            if os.path.isdir(str(f)):
-                character_folder = pathlib.Path(str(f))
-                mesh_file = utils.search_dir_for_file(character_folder, file_name)
-                if mesh_file:
-                    break
-
-        # If the character folder was not found, search the full asset dir for it
-        max_folder_depth = 5
-        if not character_folder and folder_assets.exists():
-            # Get all folders in the asset dir
-            # TODO: Make this yield the folders instead of creating a list
-            folders_all = utils.listdir_r(folder_assets, max_depth=max_folder_depth)
-            for f in folders_all:
-                # print(f"Checking folder '{f}'")
-                if f.name == folder.name:
-                    # print(f"FOUND!")
-                    character_folder = f
-                    mesh_file = utils.search_dir_for_file(character_folder, file_name)
-                    if mesh_file:
-                        break
+        # Search for the model directory in the install and asset folders
+        character_folder, mesh_file = utils.search_dirs_for_model(file_directory, file_name)
 
         if not character_folder or not character_folder.exists():
-            self.error_handler.add_error(f"Character folder '{file_directory}' does not exist and was not found in any selected directory, skipping character import.")
+            folder_name = file_directory.split("\\")[-1]
+            self.error_handler.add_error(f"Model '{folder_name}' was not found in any selected folder. Full original path: '{file_directory}'")
             return
         if not mesh_file:
             self.error_handler.add_error(f"Could not find any folder '{character_folder.name}' containing the file '{file_name}' (.xps, .mesh, .ascii).")
@@ -215,6 +179,7 @@ class SceneConstructor:
                 self.active_armature = obj
                 self.active_armature.parent = self.scene_controller
                 self.active_armature.name = character_folder.parts[-1]
+                utils.set_hide(self.active_armature, True)
                 break
         if not self.active_armature:
             self.error_handler.add_error(f"Character collection '{character_collection.name}' does not contain an armature, skipping character pose.")
@@ -274,8 +239,14 @@ class SceneConstructor:
         # XNALara probably defaults to the importing the floor mesh from data/Floor/Floor/Generic_Item.mesh
         # Therefore we just import this by default
 
-        self.add_character("data\\Floor\\Floor", "generic_item", visibility)
+        filepath = "data\\Floor\\Floor"
+        self.add_character(filepath, "generic_item", visibility)
         plane_armature = self.active_armature
+        if not plane_armature:
+            self.error_handler.remove_error_containing_str(f"'{filepath}'")
+            self.error_handler.add_error(f"Could not find ground model, probably due to an unknown XPS installation folder.")
+            return
+
         for obj in plane_armature.children:
             if obj.type != "MESH":
                 continue
@@ -302,6 +273,39 @@ class ErrorHandler:
     
     def has_errors(self):
         return len(self.errors) > 0
+    
+    def remove_error_containing_str(self, containing_str):
+        [self.errors.remove(error) for error in self.errors if containing_str in error]
 
 
+class SettingsHandler:
+    structure = {
+        "xps_importer_install_dir": "",
+        "xps_importer_asset_dir": "",
+    }
+
+    @staticmethod
+    def init():
+        # Add the load_settings function to the load_post handler in order to apply the settings as soon as a new file gets loaded
+        bpy.app.handlers.load_post.append(SettingsHandler.load_settings)
+
+    @staticmethod
+    def save_settings():
+        settings = copy.deepcopy(SettingsHandler.structure)
+        for key in settings.keys():
+            settings[key] = getattr(bpy.context.scene, key)
+        with open(utils.settings_file, "w") as f:
+            json.dump(settings, f, indent=4)
+
+    @staticmethod
+    @persistent
+    def load_settings(arg1=None, arg2=None):
+        if not utils.settings_file.exists():
+            return
+        with open(utils.settings_file, "r") as f:
+            settings = json.load(f)
+        for key, value in settings.items():
+            if not value:
+                return
+            setattr(bpy.context.scene, key, value)
 

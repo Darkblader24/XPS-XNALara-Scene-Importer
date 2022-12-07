@@ -3,8 +3,9 @@ import pathlib
 import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
+
 from . import import_handler
-from . import utils
+from . import utils, core
 
 
 class ImportXPSButton(Operator, ImportHelper):
@@ -70,7 +71,10 @@ class SelectInstallDirButton(Operator, ImportHelper):
 
     def execute(self, context):
         filepath = pathlib.Path(self.filepath)
-        context.scene.xps_importer_install_dir = str(filepath.parent.absolute())
+        if filepath.is_file() or not filepath.exists():
+            filepath = filepath.parent
+        context.scene.xps_importer_install_dir = str(filepath.absolute())
+        core.SettingsHandler.save_settings()
         utils.update_viewport()
         return {'FINISHED'}
 
@@ -83,7 +87,10 @@ class SelectAssetDirButton(Operator, ImportHelper):
 
     def execute(self, context):
         filepath = pathlib.Path(self.filepath)
-        context.scene.xps_importer_asset_dir = str(filepath.parent.absolute())
+        if filepath.is_file() or not filepath.exists():
+            filepath = filepath.parent
+        context.scene.xps_importer_asset_dir = str(filepath.absolute())
+        core.SettingsHandler.save_settings()
         utils.update_viewport()
         return {'FINISHED'}
 

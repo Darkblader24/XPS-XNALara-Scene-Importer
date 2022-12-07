@@ -42,10 +42,10 @@ class MainPanel(Panel, bpy.types.Panel):
         row.scale_y = 1.6
         row.operator(ops.ImportXPSButton.bl_idname, icon="IMPORT")
 
-        layout.separator()
-
-        row = layout.row(align=True)
-        row.scale_y = 1.1
-        row.operator(ops.ImportXPSTestButton.bl_idname, icon="IMPORT")
+        # layout.separator()
+        #
+        # row = layout.row(align=True)
+        # row.scale_y = 1.1
+        # row.operator(ops.ImportXPSTestButton.bl_idname, icon="IMPORT")
 
 

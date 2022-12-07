@@ -70,6 +70,9 @@ def register():
 
     properties.register()
 
+    # Load settings
+    core.SettingsHandler.init()
+
     print("#### Loaded XPS/XNALara Scene Importer ####\n")
 
 

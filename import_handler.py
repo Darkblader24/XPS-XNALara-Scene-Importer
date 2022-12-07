@@ -108,6 +108,7 @@ class ImportXPS:
             self._print(f"Info: Item {i} scale: {item_scale}")
 
             # Add the character to the scene
+            self.scene.active_armature = None
             if self.import_models:
                 if item_visibility or not self.exclude_hidden_models:
                     self.scene.add_character(item_path, item_name, item_visibility)
