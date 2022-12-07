@@ -17,7 +17,9 @@ This tool works just the same as XPS’s scene importer, and brings your entire 
 
 ### Requirements
 - Blender 3.3 or above
-- For model import: [XNALaraMesh Plugin](https://github.com/johnzero7/XNALaraMesh)
+- For model import: [XNALaraMesh Plugin Download](https://github.com/Darkblader24/XNALaraMesh/archive/refs/heads/master.zip) ([Repo Link](https://github.com/Darkblader24/XNALaraMesh))
+  - This is an updated version of the original plugin, due to the original creator being inactive
+  - This version has a greatly improved shader and the missing texture error has been fixed
 
 ### Installation
 - [Download](https://github.com/Darkblader24/XPS-XNALara-Scene-Importer/archive/refs/heads/master.zip) the latest release
@@ -39,6 +41,13 @@ This tool works just the same as XPS’s scene importer, and brings your entire 
 XPS is a fantastic and simple tool for posing and scene construction, and its convenient sliders and color picker make it possible to quickly build vivid, colorful light setups. However, for 3D artists looking to improve their realism, it has some shortcomings, especially the lack of cast shadows. Blender’s Eevee engine is extremely capable and works in real time, just the same as XPS, and it renders quickly and allows for multiple saved camera angles, strongly improving upon XPS’s existing functions. 
 XPS has often been treated as a tool in a larger rendering workflow, where you import your character and create your pose, then export as .obj to render in a different program. But what if you want to adjust your pose after export? What if you like the light setup you already made in XPS? Too bad, so sad - until now! With this plugin, you get the best of both worlds: you can upgrade to Blender 3.3 as your final renderer, and still pose models and build new scenes in XPS, or improve your old XPS scenes with the literal click of a button.
 
+### Optimization: 
+To make your renders look as good as possible, adjust your .blend file to the following settings, which increase brightness and contrast and enhance your lighting.
+- World panel > Surface > Strength: 1.3
+- Scene panel > Color Management > Look: Very High Contrast
+- Scene panel > Color Management > Exposure: -0.5
+- Scene panel > Color Management > Gamma: 1.5 
+
 ### Import Options: 
 Within the Import XPS selection window, there are several checkbox options:
 - Import Models: Exactly what it sounds like. This function tracks down every model saved in your scene (generic_item.mesh, xps.xps, or generic_item.mesh.ascii) and imports them to Blender, at the correct coordinates, and with the correct pose loaded. 
@@ -59,14 +68,7 @@ The importer performs some wizardry to convert XPS’s light parameters (horizon
 ### Camera:
 Use Blender’s View > Viewpoint > Camera to instantly see your scene exactly as it was saved in XPS.
 - By default, it is set to render your images at 200% resolution, similar to the XPS save-image dialog box. This can be changed in Scene > Format > Resolution %. 
-- For easily setting up a scene with multiple camera angles, select your camera, use the Insert Keyframe function on the camera (I, Loc/Rot/Scale), then use your arrow keys to step forward 1 frame, use "Lock Camera to View", press I to save the next angle, etc. If you worked hard on a 3D model and want to show it off from multiple angles, this is the way to go! Set your cameras once with keyframes, and you’ll never have to repeat your work. 
-
-### Optimization: 
-To make your renders look as good as possible, adjust your .blend file to the following settings, which increase brightness and contrast and enhance your lighting.
-- World panel > Surface > Strength: 1.3
-- Scene panel > Color Management > Look: Very High Contrast
-- Scene panel > Color Management > Exposure: -0.5
-- Scene panel > Color Management > Gamma: 1.5 
+- For easily setting up a scene with multiple camera angles, select your camera, use the Insert Keyframe function on the camera (I, Loc/Rot/Scale), then use your arrow keys to step forward 1 frame, use "Lock Camera to View", press I to save the next angle, etc. If you worked hard on a 3D model and want to show it off from multiple angles, this is the way to go! Set your cameras once with keyframes, and you’ll never have to repeat your work.
 
 ### Saving:
 Blender renders your image with a press of a button (F12). To make Blender automatically save those renders to a folder of your choice, follow this tutorial. https://www.youtube.com/watch?v=HFyXAc5xWCo 
