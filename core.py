@@ -186,7 +186,7 @@ class SceneConstructor:
                 if not visibility:
                     hide = True
 
-                obj.name = name
+                # obj.name = name  # TODO: judgearts thinks that renaming this to something more nice is not good. So it's disabled for now
                 utils.set_hide(obj, hide)
                 continue
 
