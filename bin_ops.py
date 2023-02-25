@@ -60,9 +60,11 @@ def writeInt16(number):
     return int16
 
 
-def readUInt32(file):
+def readUInt32(file, print_hex=False):
     numberBin = file.read(4)
     number = struct.unpack(TypeFormat.UInt32, numberBin)[0]
+    if print_hex:
+        print(" ", numberBin, binascii.hexlify(numberBin))
     return number
 
 
@@ -91,6 +93,13 @@ def readString(file):
     byte = file.read(1) + b'\x00'
     string_length = struct.unpack(TypeFormat.UInt16, byte)[0]
     # print(string_length, binascii.hexlify(byte))
+
+    # Handle edge case where a "01" follows the string length. Maybe this is a bone visibility flag?
+    byte = file.read(1)
+    if byte != b'\x01':
+        file.seek(file.tell() - 1)
+    else:
+        print("Handled edge case '01' after string length")
 
     # Read the string of the indicated length
     string = ""

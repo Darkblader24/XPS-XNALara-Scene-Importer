@@ -2,7 +2,7 @@
 bl_info = {
     'name': 'XPS/XNALara Scene Importer',
     'category': '3D View',
-    'author': 'XPS',
+    'author': 'Hotox',
     'location': 'View 3D > Tool Shelf > XPS',
     'description': 'Import XPS and XNALara scenes',
     'version': (1, 0, 0),

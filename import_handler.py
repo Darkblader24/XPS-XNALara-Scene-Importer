@@ -99,9 +99,9 @@ class ImportXPS:
 
             # Read the item scale
             if self.version >= (1, 8):
-                item_scale = (bin_ops.readSingle(self.io_stream),
-                              bin_ops.readSingle(self.io_stream),
-                              bin_ops.readSingle(self.io_stream))
+                item_scale = (bin_ops.readSingle(self.io_stream, print_hex=False),
+                              bin_ops.readSingle(self.io_stream, print_hex=False),
+                              bin_ops.readSingle(self.io_stream, print_hex=False))
             else:
                 scale = bin_ops.readSingle(self.io_stream)
                 item_scale = (scale, scale, scale)
@@ -114,7 +114,7 @@ class ImportXPS:
                     self.scene.add_character(item_path, item_name, item_visibility)
 
             # Read the bone data
-            bone_count = bin_ops.readUInt32(self.io_stream)
+            bone_count = bin_ops.readUInt32(self.io_stream, print_hex=False)
             print(f"Info: Item {i} bone count: {bone_count}")
             for _ in range(bone_count):
                 bone_name = bin_ops.readString(self.io_stream)
@@ -146,14 +146,14 @@ class ImportXPS:
             for _ in range(accessory_count):
                 name = bin_ops.readString(self.io_stream)
                 self.io_stream.read(1)  # Skip one byte
-                self._print(f"Info: Accessory name: '{name}'")
+                self._print(f"Info: Item {i} accessory name: '{name}'")
 
             # Skip all secondary accessories
             accessory_count = bin_ops.readUInt16(self.io_stream)
             for _ in range(accessory_count):
                 name = bin_ops.readString(self.io_stream)
                 self.io_stream.read(1)  # Skip one byte
-                self._print(f"Info: Secondary accessory name: '{name}'")
+                self._print(f"Info: Item {i} secondary accessory name: '{name}'")
 
             # Skip the glow information
             if self.version >= (1, 11):
