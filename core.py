@@ -314,7 +314,7 @@ class SettingsHandler:
         settings = copy.deepcopy(SettingsHandler.structure)
         for key in settings.keys():
             settings[key] = getattr(bpy.context.scene, key)
-        with open(utils.settings_file, "w") as f:
+        with open(utils.settings_file, "w+") as f:
             json.dump(settings, f, indent=4)
 
     @staticmethod
