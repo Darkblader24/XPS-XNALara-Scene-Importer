@@ -1,4 +1,7 @@
 <h1 align="center">XPS/XNALara Scene Importer</h1>
+<h3 align="center">Latest version: <a href="https://github.com/Darkblader24/XPS-XNALara-Scene-Importer/archive/refs/heads/master.zip">Download</a></h3>
+
+---
 
 This Blender plugin allows XPS users to easily import their .scene files into Blender, for immediate high-quality real-time rendering in the Eevee engine. 
 
@@ -9,8 +12,6 @@ This tool works just the same as XPS’s scene importer, and brings your entire 
 </p>
 
 ---
-
-### [Download](https://github.com/Darkblader24/XPS-XNALara-Scene-Importer/archive/refs/heads/master.zip)
 
 ### Features
 - Import Models, Poses, Lights, Camera and Ground
